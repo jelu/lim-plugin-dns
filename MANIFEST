@@ -1,0 +1,14 @@
+Changes
+
+lib/Lim/Plugin/ZFM.pm
+lib/Lim/Plugin/ZFM/CLI.pm
+lib/Lim/Plugin/ZFM/Client.pm
+lib/Lim/Plugin/ZFM/Server.pm
+
+Makefile.PL
+MANIFEST			This list of files
+README
+t/00-load.t
+t/manifest.t
+t/pod-coverage.t
+t/pod.t

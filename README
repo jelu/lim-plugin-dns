@@ -1,15 +1,13 @@
-Lim-Plugin-ZFM - Zone File Manage plugin for Lim
+Lim-Plugin-DNS - DNS Manager plugin for Lim
 
 ABOUT
 
-This plugin manage zone files via Lim that are file based. Since you configure
-where the zone files are it can work with any software that uses file base zone
-files. Support for other medias (such as databases) can be implemented in the
-future.
+This plugin manage generic DNS related information like zone files via Lim. It
+does not manage DNS software specific information.
 
 For available RPC calls and CLI commands please see:
 
-	perldoc Lim::Plugin::ZFM
+	perldoc Lim::Plugin::DNS
 
 INSTALLATION
 
@@ -25,15 +23,15 @@ SUPPORT AND DOCUMENTATION
 After installing, you can find documentation for this module with the
 perldoc command.
 
-    perldoc Lim::Plugin::ZFM
+    perldoc Lim::Plugin::DNS
 
 You can also look for information at:
 
     Issue tracker (report bugs here)
-        http://github.com/jelu/lim-plugin-zfm/issues
+        http://github.com/jelu/lim-plugin-dns/issues
 
     GIT repository
-        http://github.com/jelu/lim-plugin-zfm
+        http://github.com/jelu/lim-plugin-dns
 
 
 LICENSE AND COPYRIGHT

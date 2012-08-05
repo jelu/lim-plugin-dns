@@ -1,20 +1,25 @@
-package Lim::Plugin::ZFM;
+package Lim::Plugin::DNS::CLI;
 
 use common::sense;
 
-use base qw(Lim::Component);
+use Getopt::Long ();
+use Scalar::Util qw(weaken);
+
+use Lim::Plugin::DNS ();
+
+use base qw(Lim::Component::CLI);
 
 =head1 NAME
 
-Lim::Plugin::ZFM - Zone File Manage plugin for Lim
+...
 
 =head1 VERSION
 
-Version 0.10
+See L<Lim::Plugin::DNS> for version.
 
 =cut
 
-our $VERSION = '0.10';
+our $VERSION = $Lim::Plugin::DNS::VERSION;
 
 =head1 SYNOPSIS
 
@@ -26,37 +31,19 @@ our $VERSION = '0.10';
 
 =cut
 
-sub Module {
-    'ZFM';
-}
-
-=head2 function1
-
-=cut
-
-sub Calls {
-}
-
-=head2 function1
-
-=cut
-
-sub Commands {
-}
-
 =head1 AUTHOR
 
 Jerry Lundström, C<< <lundstrom.jerry at gmail.com> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to L<https://github.com/jelu/lim-plugin-zfm/issues>.
+Please report any bugs or feature requests to L<https://github.com/jelu/lim-plugin-dns/issues>.
 
 =head1 SUPPORT
 
 You can find documentation for this module with the perldoc command.
 
-    perldoc Lim::Plugin::ZFM
+    perldoc Lim::Plugin::DNS
 
 You can also look for information at:
 
@@ -64,7 +51,7 @@ You can also look for information at:
 
 =item * Lim issue tracker (report bugs here)
 
-L<https://github.com/jelu/lim-plugin-zfm/issues>
+L<https://github.com/jelu/lim-plugin-dns/issues>
 
 =back
 
@@ -83,4 +70,4 @@ See http://dev.perl.org/licenses/ for more information.
 
 =cut
 
-1; # End of Lim::Plugin::ZFM
+1; # End of Lim::Plugin::DNS::CLI

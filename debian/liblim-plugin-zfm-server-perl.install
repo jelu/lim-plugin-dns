@@ -1,2 +1,2 @@
-usr/share/perl5/Lim/Plugin/ZFM/Server.pm
-usr/share/man/man3/Lim::Plugin::ZFM::Server.3pm
+usr/share/perl5/Lim/Plugin/DNS/Server.pm
+usr/share/man/man3/Lim::Plugin::DNS::Server.3pm

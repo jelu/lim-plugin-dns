@@ -1,4 +1,4 @@
-package Lim::Plugin::ZFM::Server;
+package Lim::Plugin::DNS::Server;
 
 use common::sense;
 
@@ -7,7 +7,7 @@ use IO::File ();
 use Digest::SHA ();
 use Scalar::Util qw(weaken);
 
-use Lim::Plugin::ZFM ();
+use Lim::Plugin::DNS ();
 
 use Lim::Util ();
 
@@ -19,11 +19,11 @@ use base qw(Lim::Component::Server);
 
 =head1 VERSION
 
-See L<Lim::Plugin::ZFM> for version.
+See L<Lim::Plugin::DNS> for version.
 
 =cut
 
-our $VERSION = $Lim::Plugin::ZFM::VERSION;
+our $VERSION = $Lim::Plugin::DNS::VERSION;
 
 =head1 SYNOPSIS
 
@@ -55,13 +55,13 @@ Jerry Lundström, C<< <lundstrom.jerry at gmail.com> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to L<https://github.com/jelu/lim-plugin-zfm/issues>.
+Please report any bugs or feature requests to L<https://github.com/jelu/lim-plugin-dns/issues>.
 
 =head1 SUPPORT
 
 You can find documentation for this module with the perldoc command.
 
-    perldoc Lim::Plugin::ZFM
+    perldoc Lim::Plugin::DNS
 
 You can also look for information at:
 
@@ -69,7 +69,7 @@ You can also look for information at:
 
 =item * Lim issue tracker (report bugs here)
 
-L<https://github.com/jelu/lim-plugin-zfm/issues>
+L<https://github.com/jelu/lim-plugin-dns/issues>
 
 =back
 
@@ -88,4 +88,4 @@ See http://dev.perl.org/licenses/ for more information.
 
 =cut
 
-1; # End of Lim::Plugin::ZFM::Server
+1; # End of Lim::Plugin::DNS::Server

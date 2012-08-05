@@ -3,7 +3,7 @@
 use Test::More tests => 1;
 
 BEGIN {
-    use_ok( 'Lim::Plugin::ZFM' ) || print "Bail out!\n";
+    use_ok( 'Lim::Plugin::DNS' ) || print "Bail out!\n";
 }
 
-diag( "Testing Lim::Plugin::ZFM $Lim::Plugin::ZFM::VERSION, Perl $], $^X" );
+diag( "Testing Lim::Plugin::DNS $Lim::Plugin::DNS::VERSION, Perl $], $^X" );

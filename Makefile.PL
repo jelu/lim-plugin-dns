@@ -4,10 +4,10 @@ use warnings;
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
-    NAME                => 'Lim::Plugin::ZFM',
+    NAME                => 'Lim::Plugin::DNS',
     AUTHOR              => q{Jerry Lundström <lundstrom.jerry@gmail.com>},
-    VERSION_FROM        => 'lib/Lim/Plugin/ZFM.pm',
-    ABSTRACT_FROM       => 'lib/Lim/Plugin/ZFM.pm',
+    VERSION_FROM        => 'lib/Lim/Plugin/DNS.pm',
+    ABSTRACT_FROM       => 'lib/Lim/Plugin/DNS.pm',
     ($ExtUtils::MakeMaker::VERSION >= 6.3002
       ? ('LICENSE'=> 'perl')
       : ()),
@@ -20,12 +20,12 @@ WriteMakefile(
     (! eval { ExtUtils::MakeMaker->VERSION(6.46) } ? () :
         (META_ADD => {
             resources => {
-                homepage   => 'http://github.com/jelu/lim-plugin-zfm/wiki',
-                repository => 'http://github.com/jelu/lim-plugin-zfm',
-                bugtracker => 'http://github.com/jelu/lim-plugin-zfm/issues',
+                homepage   => 'http://github.com/jelu/lim-plugin-dns/wiki',
+                repository => 'http://github.com/jelu/lim-plugin-dns',
+                bugtracker => 'http://github.com/jelu/lim-plugin-dns/issues',
             },
         })
     ),
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean               => { FILES => 'Lim-Plugin-ZFM-*' },
+    clean               => { FILES => 'Lim-Plugin-DNS-*' },
 );

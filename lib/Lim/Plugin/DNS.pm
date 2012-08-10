@@ -35,6 +35,143 @@ sub Module {
 =cut
 
 sub Calls {
+    {
+        ReadZones => {
+            out => {
+                zone => {
+                    file => 'string',
+                    software => 'string',
+                    read => 'bool',
+                    write => 'bool'
+                }
+            }
+        },
+        #
+        # Zone
+        #
+        CreateZone => {
+            
+        },
+        ReadZone => {
+            in => {
+                zone => {
+                    '' => 'required',
+                    file => 'string'
+                }
+            },
+            out => {
+                zone => {
+                    file => 'string',
+                    software => 'string',
+                    options => {
+                        name => 'string',
+                        value => 'string'
+                    },
+                    rr => {
+                        name => 'string',
+                        ttl => 'string',
+                        class => 'string',
+                        type => 'string',
+                        rdata => 'string'
+                    }
+                }
+            }
+        },
+        UpdateZone => {
+            in => {
+                zone => {
+                    '' => 'required',
+                    file => 'string',
+                    options => {
+                        name => 'string',
+                        value => 'string'
+                    },
+                    rr => {
+                        name => 'string',
+                        ttl => 'string',
+                        class => 'string',
+                        type => 'string',
+                        rdata => 'string'
+                    }
+                }
+            }
+        },
+        DeleteZone => {
+            in => {
+                zone => {
+                    '' => 'required',
+                    file => 'string'
+                }
+            }
+        },
+        #
+        # Zone Resource Record
+        #
+        CreateZoneRr => {
+            in => {
+                zone => {
+                    '' => 'required',
+                    file => 'string',
+                    rr => {
+                        name => 'string',
+                        ttl => 'string',
+                        class => 'string',
+                        type => 'string',
+                        rdata => 'string'
+                    }
+                }
+            }
+        },
+        ReadZoneRr => {
+            in => {
+                zone => {
+                    '' => 'required',
+                    file => 'string',
+                    rr => {
+                        name => 'string'
+                    }
+                }
+            },
+            out => {
+                zone => {
+                    file => 'string',
+                    rr => {
+                        name => 'string',
+                        ttl => 'string',
+                        class => 'string',
+                        type => 'string',
+                        rdata => 'string'
+                    }
+                }
+            }
+        },
+        UpdateZoneRr => {
+            in => {
+                zone => {
+                    '' => 'required',
+                    file => 'string',
+                    rr => {
+                        name => 'string',
+                        ttl => 'string',
+                        class => 'string',
+                        type => 'string',
+                        rdata => 'string'
+                    }
+                }
+            }
+        },
+        DeleteZoneRr => {
+            in => {
+                zone => {
+                    '' => 'required',
+                    file => 'string',
+                    rr => {
+                        name => 'string'
+                    }
+                }
+            }
+        }
+    };
 }
 
 =head2 function1

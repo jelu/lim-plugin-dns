@@ -40,7 +40,7 @@ sub Calls {
             out => {
                 zone => {
                     file => 'string',
-                    software => 'string',
+                    software => 'string optional',
                     read => 'bool',
                     write => 'bool'
                 }
@@ -50,19 +50,11 @@ sub Calls {
         # Zone
         #
         CreateZone => {
-            
-        },
-        ReadZone => {
             in => {
                 zone => {
                     '' => 'required',
-                    file => 'string'
-                }
-            },
-            out => {
-                zone => {
                     file => 'string',
-                    software => 'string',
+                    software => 'string optional',
                     options => {
                         name => 'string',
                         value => 'string'
@@ -73,7 +65,35 @@ sub Calls {
                         class => 'string',
                         type => 'string',
                         rdata => 'string'
-                    }
+                    },
+                    content => 'string optional'
+                }
+            },
+        },
+        ReadZone => {
+            in => {
+                zone => {
+                    '' => 'required',
+                    file => 'string',
+                    raw => 'bool optional'
+                }
+            },
+            out => {
+                zone => {
+                    file => 'string',
+                    software => 'string optional',
+                    options => {
+                        name => 'string',
+                        value => 'string'
+                    },
+                    rr => {
+                        name => 'string',
+                        ttl => 'string',
+                        class => 'string',
+                        type => 'string',
+                        rdata => 'string'
+                    },
+                    content => 'string optional'
                 }
             }
         },
@@ -92,7 +112,8 @@ sub Calls {
                         class => 'string',
                         type => 'string',
                         rdata => 'string'
-                    }
+                    },
+                    content => 'string optional'
                 }
             }
         },

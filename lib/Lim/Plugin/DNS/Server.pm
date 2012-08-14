@@ -24,6 +24,67 @@ See L<Lim::Plugin::DNS> for version.
 =cut
 
 our $VERSION = $Lim::Plugin::DNS::VERSION;
+our %ZoneFilePath = (
+    #
+    # OpenDNSSEC
+    #
+    '/var/opendnssec/unsigned' => {
+        read => 1,
+        write => 1
+    },
+    '/var/opendnssec/signed' => {
+        read => 1,
+        write => 0
+    },
+    '/var/lib/opendnssec/unsigned' => {
+        read => 1,
+        write => 1
+    },
+    '/var/llb/opendnssec/signed' => {
+        read => 1,
+        write => 0
+    },
+    #
+    # BIND
+    #
+    '/var/bind' => {
+        read => 1,
+        write => 1
+    },
+    '/var/lib/bind' => {
+        read => 1,
+        write => 1
+    },
+    '/var/cache/bind' => {
+        read => 1,
+        write => 0
+    },
+    '/etc/bind' => {
+        read => 1,
+        write => 1,
+        match => '\.db$'
+    },
+    '/var/named' => {
+        read => 1,
+        write => 1
+    },
+    '/var/lib/named' => {
+        read => 1,
+        write => 1
+    },
+    '/var/cache/named' => {
+        read => 1,
+        write => 0
+    },
+    '/etc/named' => {
+        read => 1,
+        write => 1,
+        match => '\.db$'
+    },
+    #
+    # NSD, Knot, Yadifa, PowerDNS. djbdns
+    #
+);
 
 =head1 SYNOPSIS
 
@@ -48,6 +109,92 @@ sub Destroy {
 =head2 function1
 
 =cut
+
+sub ReadZones {
+    my ($self, $cb) = @_;
+    
+    $self->Error($cb, 'Not Implemented');
+}
+
+=head2 function1
+
+=cut
+
+sub CreateZone {
+    my ($self, $cb) = @_;
+    
+    $self->Error($cb, 'Not Implemented');
+}
+
+=head2 function1
+
+=cut
+
+sub ReadZone {
+    my ($self, $cb) = @_;
+    
+    $self->Error($cb, 'Not Implemented');
+}
+
+=head2 function1
+
+=cut
+
+sub UpdateZone {
+    my ($self, $cb) = @_;
+    
+    $self->Error($cb, 'Not Implemented');
+}
+
+=head2 function1
+
+=cut
+
+sub DeleteZone {
+    my ($self, $cb) = @_;
+    
+    $self->Error($cb, 'Not Implemented');
+}
+
+=head2 function1
+
+=cut
+
+sub CreateZoneRr {
+    my ($self, $cb) = @_;
+    
+    $self->Error($cb, 'Not Implemented');
+}
+
+=head2 function1
+
+=cut
+
+sub ReadZoneRr {
+    my ($self, $cb) = @_;
+    
+    $self->Error($cb, 'Not Implemented');
+}
+
+=head2 function1
+
+=cut
+
+sub UpdateZoneRr {
+    my ($self, $cb) = @_;
+    
+    $self->Error($cb, 'Not Implemented');
+}
+
+=head2 function1
+
+=cut
+
+sub DeleteZoneRr {
+    my ($self, $cb) = @_;
+    
+    $self->Error($cb, 'Not Implemented');
+}
 
 =head1 AUTHOR
 

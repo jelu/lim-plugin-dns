@@ -200,6 +200,9 @@ sub Calls {
 =cut
 
 sub Commands {
+    {
+        zones => 1
+    };
 }
 
 =head1 AUTHOR

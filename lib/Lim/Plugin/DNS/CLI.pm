@@ -31,6 +31,40 @@ our $VERSION = $Lim::Plugin::DNS::VERSION;
 
 =cut
 
+sub zones {
+    my ($self) = @_;
+    my $opendnssec = Lim::Plugin::DNS->Client;
+    
+    weaken($self);
+    $opendnssec->ReadZones(sub {
+        my ($call, $response) = @_;
+        
+        unless (defined $self) {
+            undef($opendnssec);
+            return;
+        }
+        
+        if ($call->Successful) {
+            if (exists $response->{zone}) {
+                $self->cli->println(join("\t", 'Software', 'Zone File', 'Read', 'Write'));
+                foreach my $zone (ref($response->{zone}) eq 'ARRAY' ? @{$response->{zone}} : $response->{zone}) {
+                    $self->cli->println(join("\t",
+                        $zone->{software},
+                        $zone->{file},
+                        $zone->{read} ? 'Yes' : 'No',
+                        $zone->{write} ? 'Yes' : 'No'
+                        ));
+                }
+            }
+            $self->Successful;
+        }
+        else {
+            $self->Error($call->Error);
+        }
+        undef($opendnssec);
+    });
+}
+
 =head1 AUTHOR
 
 Jerry Lundström, C<< <lundstrom.jerry at gmail.com> >>

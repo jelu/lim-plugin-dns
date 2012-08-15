@@ -28,59 +28,51 @@ our %ZoneFilePath = (
     #
     # OpenDNSSEC
     #
-    '/var/opendnssec/unsigned' => {
-        read => 1,
-        write => 1
-    },
-    '/var/opendnssec/signed' => {
-        read => 1,
-        write => 0
-    },
-    '/var/lib/opendnssec/unsigned' => {
-        read => 1,
-        write => 1
-    },
-    '/var/llb/opendnssec/signed' => {
-        read => 1,
-        write => 0
+    OpenDNSSEC => {
+        '/var/opendnssec/unsigned' => {
+            writable => 1
+        },
+        '/var/opendnssec/signed' => {
+            writable => 0
+        },
+        '/var/lib/opendnssec/unsigned' => {
+            writable => 1
+        },
+        '/var/llb/opendnssec/signed' => {
+            writable => 0
+        }
     },
     #
     # BIND
     #
-    '/var/bind' => {
-        read => 1,
-        write => 1
-    },
-    '/var/lib/bind' => {
-        read => 1,
-        write => 1
-    },
-    '/var/cache/bind' => {
-        read => 1,
-        write => 0
-    },
-    '/etc/bind' => {
-        read => 1,
-        write => 1,
-        match => '\.db$'
-    },
-    '/var/named' => {
-        read => 1,
-        write => 1
-    },
-    '/var/lib/named' => {
-        read => 1,
-        write => 1
-    },
-    '/var/cache/named' => {
-        read => 1,
-        write => 0
-    },
-    '/etc/named' => {
-        read => 1,
-        write => 1,
-        match => '\.db$'
-    },
+    BIND => {
+        '/var/bind' => {
+            writable => 1
+        },
+        '/var/lib/bind' => {
+            writable => 1
+        },
+        '/var/cache/bind' => {
+            writable => 0
+        },
+        '/etc/bind' => {
+            writable => 1,
+            match => qr/(?:^db\.|\.db$)/o
+        },
+        '/var/named' => {
+            writable => 1
+        },
+        '/var/lib/named' => {
+            writable => 1
+        },
+        '/var/cache/named' => {
+            writable => 0
+        },
+        '/etc/named' => {
+            writable => 1,
+            match => qr/(?:^db\.|\.db$)/o
+        }
+    }
     #
     # NSD, Knot, Yadifa, PowerDNS. djbdns
     #
@@ -110,10 +102,92 @@ sub Destroy {
 
 =cut
 
+sub _ScanZoneFile {
+    my ($self) = @_;
+    my %file;
+    
+    foreach my $software (keys %ZoneFilePath) {
+        foreach my $path (keys %{$ZoneFilePath{$software}}) {
+            my $entry = $ZoneFilePath{$software}->{$path};
+            $path =~ s/\/+$//o;
+            
+            unless (opendir(DIR, $path)) {
+                next;
+            }
+            
+            while (defined (my $file = readdir(DIR))) {
+                unless (-f $path.'/'.$file and $file !~ /^\./o) {
+                    next;
+                }
+                if (exists $entry->{match} and $file !~ $entry->{match}) {
+                    next;
+                }
+                
+                if (defined ($_ = Lim::Util::FileWritable($path.'/'.$file))) {
+                    my $write = $entry->{writable} ? 1 : 0;
+                    
+                    if (exists $file{$software}->{$_}) {
+                        $file{$software}->{$_}->{write} = $write;
+                        next;
+                    }
+                    
+                    $file{$software}->{$_} = {
+                        name => $_,
+                        write => $write,
+                        read => 1
+                    };
+                }
+                elsif (defined ($_ = Lim::Util::FileReadable($path.'/'.$file))) {
+                    if (exists $file{$software}->{$_}) {
+                        next;
+                    }
+                    
+                    $file{$software}->{$_} = {
+                        name => $_,
+                        write => 0,
+                        read => 1
+                    };
+                }
+            }
+            closedir(DIR);
+        }
+    }
+    
+    return \%file;
+}
+
+=head2 function1
+
+=cut
+
 sub ReadZones {
     my ($self, $cb) = @_;
+    my $files = $self->_ScanZoneFile;
+    my @zone;
     
-    $self->Error($cb, 'Not Implemented');
+    foreach my $software (keys %$files) {
+        foreach my $file (values %{$files->{$software}}) {
+            push(@zone, {
+                file => $file->{name},
+                software => $software,
+                read => $file->{read},
+                write => $file->{write}
+            });
+        }
+    }
+    
+    use Data::Dumper;
+    print Dumper(\@zone);
+
+    if (scalar @zone == 1) {
+        $self->Successful($cb, { zone => $zone[0] });
+    }
+    elsif (scalar @zone) {
+        $self->Successful($cb, { zone => \@zone });
+    }
+    else {
+        $self->Successful($cb);
+    }
 }
 
 =head2 function1

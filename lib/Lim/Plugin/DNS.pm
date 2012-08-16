@@ -61,10 +61,16 @@ sub Calls {
                     },
                     rr => {
                         name => 'string',
-                        ttl => 'string',
-                        class => 'string',
+                        ttl => 'string optional',
+                        class => 'string optional',
                         type => 'string',
-                        rdata => 'string'
+                        rdata => 'string',
+                        rr => {
+                            ttl => 'string optional',
+                            class => 'string optional',
+                            type => 'string',
+                            rdata => 'string'
+                        }
                     },
                     content => 'string optional'
                 }
@@ -88,8 +94,8 @@ sub Calls {
                     },
                     rr => {
                         name => 'string',
-                        ttl => 'string',
-                        class => 'string',
+                        ttl => 'string optional',
+                        class => 'string optional',
                         type => 'string',
                         rdata => 'string'
                     },
@@ -108,8 +114,8 @@ sub Calls {
                     },
                     rr => {
                         name => 'string',
-                        ttl => 'string',
-                        class => 'string',
+                        ttl => 'string optional',
+                        class => 'string optional',
                         type => 'string',
                         rdata => 'string'
                     },
@@ -135,8 +141,8 @@ sub Calls {
                     file => 'string',
                     rr => {
                         name => 'string',
-                        ttl => 'string',
-                        class => 'string',
+                        ttl => 'string optional',
+                        class => 'string optional',
                         type => 'string',
                         rdata => 'string'
                     }
@@ -158,8 +164,8 @@ sub Calls {
                     file => 'string',
                     rr => {
                         name => 'string',
-                        ttl => 'string',
-                        class => 'string',
+                        ttl => 'string optional',
+                        class => 'string optional',
                         type => 'string',
                         rdata => 'string'
                     }
@@ -173,8 +179,8 @@ sub Calls {
                     file => 'string',
                     rr => {
                         name => 'string',
-                        ttl => 'string',
-                        class => 'string',
+                        ttl => 'string optional',
+                        class => 'string optional',
                         type => 'string',
                         rdata => 'string'
                     }

@@ -4,6 +4,8 @@ use common::sense;
 
 use base qw(Lim::Component);
 
+=encoding utf8
+
 =head1 NAME
 
 Lim::Plugin::DNS - DNS Manager plugin for Lim

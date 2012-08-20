@@ -191,9 +191,6 @@ sub ReadZones {
         }
     }
     
-    use Data::Dumper;
-    print Dumper(\@zone);
-
     if (scalar @zone == 1) {
         $self->Successful($cb, { zone => $zone[0] });
     }

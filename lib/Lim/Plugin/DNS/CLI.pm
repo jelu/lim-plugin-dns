@@ -67,6 +67,63 @@ sub zones {
     });
 }
 
+=head2 function1
+
+=cut
+
+sub zone {
+    my ($self, $cmd) = @_;
+    my $software;
+    my ($getopt, $args) = Getopt::Long::GetOptionsFromString($cmd,
+        'software:s' => \$software
+    );
+
+    unless ($getopt and scalar @$args) {
+        $self->Error;
+        return;
+    }
+
+    if ($args->[0] eq 'create' and scalar @$args >= 2) {
+        my (undef, $zone, $file) = @$args;
+        my $content;
+        
+        if (defined $file) {
+            unless (defined ($content = Lim::Util::FileReadContent($file))) {
+                $self->Error('Unable to read file ', $file, ' to create zone ', $zone);
+                return;
+            }
+        }
+        
+        my $opendnssec = Lim::Plugin::DNS->Client;
+        weaken($self);
+        $opendnssec->CreateZone({
+            zone => {
+                file => $zone,
+                (defined $software ? (software => $software) : ()),
+                (defined $content ? (content => $content) : ())
+            }
+        }, sub {
+            my ($call, $response) = @_;
+            
+            unless (defined $self) {
+                undef($opendnssec);
+                return;
+            }
+            
+            if ($call->Successful) {
+                $self->cli->println('Zone ', $zone, ' created');
+                $self->Successful;
+            }
+            else {
+                $self->Error($call->Error);
+            }
+            undef($opendnssec);
+        });
+        return;
+    }
+    $self->Error;
+}
+
 =head1 AUTHOR
 
 Jerry Lundström, C<< <lundstrom.jerry at gmail.com> >>

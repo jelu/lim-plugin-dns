@@ -209,7 +209,10 @@ sub Calls {
 
 sub Commands {
     {
-        zones => 1
+        zones => 1,
+        zone => {
+            create => 1
+        }
     };
 }
 

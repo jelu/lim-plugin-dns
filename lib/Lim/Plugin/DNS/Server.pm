@@ -27,6 +27,26 @@ See L<Lim::Plugin::DNS> for version.
 
 our $VERSION = $Lim::Plugin::DNS::VERSION;
 
+our %_CLASS = (
+    IN => 1
+);
+our %_CLASS_NAME = ();
+our %_TYPE = (
+    A => 1,
+    AAAA => 2,
+    CNAME => 3,
+    DS => 4,
+    NS => 5,
+    MX => 6,
+    SOA => 7
+);
+our %_TYPE_NAME = ();
+
+BEGIN {
+    %_CLASS_NAME = reverse %_CLASS;
+    %_TYPE_NAME = reverse %_TYPE;
+}
+
 =head1 SYNOPSIS
 
 ...
@@ -148,6 +168,8 @@ sub _ScanZoneFile {
                     
                     $file{$software}->{$_} = {
                         name => $_,
+                        software => $software,
+                        short => $file,
                         write => $write,
                         read => 1
                     };
@@ -159,6 +181,8 @@ sub _ScanZoneFile {
                     
                     $file{$software}->{$_} = {
                         name => $_,
+                        software => $software,
+                        short => $file,
                         write => 0,
                         read => 1
                     };
@@ -169,6 +193,287 @@ sub _ScanZoneFile {
     }
     
     return \%file;
+}
+
+=head2 function1
+
+=cut
+
+sub _ParseZoneFile {
+    my ($self, $file, $rr) = @_;
+    my ($line, $last, $rr_hash, $rr_array);
+    
+    if (defined $rr) {
+        if (ref($rr) eq 'HASH') {
+            $rr_hash = $rr;
+        }
+        elsif (ref($rr) eq 'ARRAY') {
+            $rr_array = $rr;
+        }
+    }
+    
+    while (<$file>) {
+        if (/^([^;]+[^;\s])/o) {
+            my $this = $1;
+    
+            if (defined $line) {
+                $line .= $this;
+                unless ($this =~ /\)/o) {
+                    next;
+                }
+            }
+            elsif ($this =~ /\(/o) {
+                $line .= $this;
+                next;
+            }
+            else {
+                $line = $this;
+            }
+
+            my ($name, $ttl, $class, $type, $rdata);
+            {
+                my @parts = split(/\s+/o, $line);
+                $name = shift(@parts);
+                my $part = shift(@parts);
+                if (exists $_TYPE{$part}) {
+                    $type = $part;
+                }
+                else {
+                    if ($part =~ /^\d+[YyMmWwDdHhSs]?$/o) {
+                        $ttl = $part;
+                    }
+                    elsif (exists $_CLASS{$part}) {
+                        $class = $part;
+                    }
+                    else {
+                        undef($line);
+                        next;
+                    }
+            
+                    $part = shift(@parts);
+                    if (exists $_TYPE{$part}) {
+                        $type = $part;
+                    }
+                    else {
+                        if (!defined $ttl and $part =~ /^\d+[YyMmWwDdHhSs]?$/o) {
+                            $ttl = $part;
+                        }
+                        elsif (!defined $class and exists $_CLASS{$part}) {
+                            $class = $part;
+                        }
+                        else {
+                            undef($line);
+                            next;
+                        }
+                        
+                        $type = shift(@parts);
+                        unless (exists $_TYPE{$type}) {
+                            undef($line);
+                            next;
+                        }
+                    }
+                }
+                
+                $rdata = join(' ', @parts);
+            }
+
+            if (defined $name and defined $type and defined $rdata) {
+                unless ($name) {
+                    if (defined $last) {
+                        $name = $last;
+                    }
+                }
+                else {
+                    $last = $name;
+                }
+                #$rr{substr($name, 0, 2)}{substr($name, 2, 2)}{substr($name, 4, 4)}{substr($name, 8)} = pack('sssa*', $ttl, $class, $type, $rdata);
+                if (defined $rr_hash) {
+                    $rr_hash->{$name} = {
+                        (defined $ttl ? (ttl => $ttl) : ()),
+                        (defined $class ? (class => $class) : ()),
+                        type => $type,
+                        rdata => $rdata
+                    };
+                }
+                elsif (defined $rr_array) {
+                    push(@$rr_array, {
+                        name => $name,
+                        (defined $ttl ? (ttl => $ttl) : ()),
+                        (defined $class ? (class => $class) : ()),
+                        type => $type,
+                        rdata => $rdata
+                    })
+                }
+            }
+            undef($line);
+        }
+    }
+    return 1;
+}
+
+=head2 function1
+
+=cut
+
+sub _ParseZoneContent {
+    my ($self, $buf, $rr) = @_;
+    my ($pre, $name, $ttl, $class, $type, $rdata, $last, $rr_hash, $rr_array);
+    my $concat = 0;
+    
+    if (defined $rr) {
+        if (ref($rr) eq 'HASH') {
+            $rr_hash = $rr;
+        }
+        elsif (ref($rr) eq 'ARRAY') {
+            $rr_array = $rr;
+        }
+    }
+
+    while (1) {
+        if (!$concat) {
+            if ($buf =~ /\G[\r\n]*(\s*)([^;\s\r\n]+)/ogc) {
+                $pre = $1;
+                $name = $2;
+                if ($buf =~ /\G[\s\r\n]*([^;\s\r\n]+)/ogc) {
+                    $ttl = $1;
+                    if ($buf =~ /\G[\s\r\n]*([^;\s\r\n]+)/ogc) {
+                        $class = $1;
+                        if ($buf =~ /\G[\s\r\n]*([^;\s\r\n]+)/ogc) {
+                            $type = $1;
+                            if ($buf =~ /\G[\s\r\n]*([^;\r\n]*[^;\s\r\n])/ogc) {
+                                $rdata = $1;
+                            }
+                        }
+                    }
+                }
+                
+                $buf =~ /\G[^\r\n]*/ogc;
+            }
+            else {
+                unless ($buf =~ /\G[\r\n]*[^\r\n]*/ogc) {
+                    last;
+                }
+                next;
+            }
+            
+            if (length($pre)) {
+                if (defined $rdata) {
+                    $rdata = $type . $rdata;
+                }
+                else {
+                    $rdata = $type;
+                }
+                $type = $class;
+                $class = $ttl;
+                $ttl = $name;
+                undef($name);
+            }
+    
+            if (exists $_TYPE{$ttl}) {
+                $rdata = $class .
+                    (defined $type ? ' '.$type : '') .
+                    (defined $rdata ? ' '.$rdata : '');
+                $type = $_TYPE{$ttl};
+                undef($ttl);
+                undef($class);
+            }
+            else {
+                if ($ttl =~ /^\d+[YyMmWwDdHhSs]?$/o) {
+                    if (exists $_TYPE{$class}) {
+                        $rdata = $type .
+                            (defined $rdata ? ' '.$rdata : '');
+                        $type = $_TYPE{$class};
+                        undef($class);
+                    }
+                    else {
+                        if (exists $_CLASS{$class}) {
+                            $class = $_CLASS{$class};
+                        }
+                        else {
+                            $pre = $name = $ttl = $class = $type = $rdata = undef;
+                            next;
+                        }
+                    }
+                }
+                elsif (exists $_CLASS{$ttl}) {
+                    if (exists $_TYPE{$class}) {
+                        $rdata = $type .
+                            (defined $rdata ? ' '.$rdata : '');
+                        $type = $_TYPE{$class};
+                        undef($class);
+                    }
+                    else {
+                        if ($class =~ /^\d+[YyMmWwDdHhSs]?$/o) {
+                        }
+                        else {
+                            $pre = $name = $ttl = $class = $type = $rdata = undef;
+                            next;
+                        }
+                    }
+                    
+                    $_ = $ttl;
+                    $ttl = $class;
+                    $class = $_CLASS{$_};
+                }
+                else {
+                    $pre = $name = $ttl = $class = $type = $rdata = undef;
+                    next;
+                }
+            }
+        
+            if ($rdata =~ /\(/o) {
+                $concat = 1;
+                next;
+            }
+        }
+        else {
+            if ($buf =~ /\G[\s\r\n]*([^;\r\n]*[^;\r\n\s])/ogc) {
+                $rdata .= ' '.$1;
+                
+                unless ($1 =~ /\)/o) {
+                    next;
+                }
+                $concat = 0;
+            }
+            else {
+                unless ($buf =~ /\G[\r\n]*[^\r\n]*/ogc) {
+                    last;
+                }
+                next;
+            }
+        }
+    
+        unless ($name) {
+            unless (defined $last) {
+                $pre = $name = $ttl = $class = $type = $rdata = undef;
+                next;
+            }
+            $name = $last;
+        }
+        else {
+            $last = $name;
+        }
+        if (defined $rr_hash) {
+            $rr_hash->{$name} = {
+                (defined $ttl ? (ttl => $ttl) : ()),
+                (defined $class ? (class => $class) : ()),
+                type => $type,
+                rdata => $rdata
+            };
+        }
+        elsif (defined $rr_array) {
+            push(@$rr_array, {
+                name => $name,
+                (defined $ttl ? (ttl => $ttl) : ()),
+                (defined $class ? (class => $class) : ()),
+                type => $type,
+                rdata => $rdata
+            })
+        }
+    
+        $pre = $name = $ttl = $class = $type = $rdata = undef;
+    }
+    return 1;
 }
 
 =head2 function1
@@ -352,9 +657,103 @@ sub CreateZone {
 =cut
 
 sub ReadZone {
-    my ($self, $cb) = @_;
+    my ($self, $cb, $q) = @_;
+    my $files = $self->_ScanZoneFile;
+    my @zones;
+
+    foreach my $zone (ref($q->{zone}) eq 'ARRAY' ? @{$q->{zone}} : $q->{zone}) {
+        my ($file, $software);
+
+        if (exists $zone->{software}) {
+            unless (exists $ZoneFilePath{$zone->{software}}) {
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Unknown software ', $zone->{software}, ' specified for zone file ', $zone->{file}
+                ));
+                return;
+            }
+            
+            if (exists $files->{$zone->{software}}) {
+                foreach (values %{$files->{$zone->{software}}}) {
+                    if ($_->{read} and ($_->{short} eq $zone->{file} or $_->{name} eq $zone->{file})) {
+                        $file = $_;
+                        $software = $zone->{software};
+                        last;
+                    }
+                }
+            }
+        }
+        else {
+            foreach $software (keys %$files) {
+                foreach (values %{$files->{$software}}) {
+                    if ($_->{read} and $_->{name} eq $zone->{file}) {
+                        $file = $_;
+                        last;
+                    }
+                }
+                if (defined $file) {
+                    last;
+                }
+            }
+        }
+
+        unless (defined $file) {
+            next;
+        }
+        
+        if (exists $zone->{as_content} and $zone->{as_content}) {
+            my $content = Lim::Util::FileReadContent($file->{name});
+            unless (defined $content) {
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Unable to read zone file ', $zone->{file}
+                ));
+                return;
+            }
+            push(@zones, {
+                file => $file->{name},
+                software => $file->{software},
+                content => $content
+            });
+            next;
+        }
+
+        my $fh;
+        unless (defined ($fh = IO::File->new($file->{name}))) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to open zone file ', $zone->{file}
+            ));
+            return;
+        }
+        
+        my $rr = [];
+        unless ($self->_ParseZoneFile($fh, $rr)) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to parse zone file ', $zone->{file}
+            ));
+            return;
+        }
+
+        $fh->close;
+
+        push(@zones, {
+            file => $file->{name},
+            software => $file->{software},
+            rr => scalar @$rr == 1 ? $rr->[0] : $rr
+        });
+    }
     
-    $self->Error($cb, 'Not Implemented');
+    if (scalar @zones == 1) {
+        $self->Successful($cb, { zone => $zones[0] });
+    }
+    elsif (scalar @zones) {
+        $self->Successful($cb, { zone => \@zones });
+    }
+    else {
+        $self->Successful($cb);
+    }
 }
 
 =head2 function1

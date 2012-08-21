@@ -74,8 +74,10 @@ sub zones {
 sub zone {
     my ($self, $cmd) = @_;
     my $software;
+    my $as_content = 0;
     my ($getopt, $args) = Getopt::Long::GetOptionsFromString($cmd,
-        'software:s' => \$software
+        'software:s' => \$software,
+        'as-content' => \$as_content
     );
 
     unless ($getopt and scalar @$args) {
@@ -112,6 +114,64 @@ sub zone {
             
             if ($call->Successful) {
                 $self->cli->println('Zone ', $zone, ' created');
+                $self->Successful;
+            }
+            else {
+                $self->Error($call->Error);
+            }
+            undef($opendnssec);
+        });
+        return;
+    }
+    elsif ($args->[0] eq 'read' and scalar @$args >= 2) {
+        my @zones;
+        my $skip = 1;
+        
+        foreach (@$args) {
+            if ($skip) {
+                $skip--;
+                next;
+            }
+            
+            push(@zones, {
+                file => $_,
+                (defined $software ? (software => $software) : ()),
+                ($as_content ? (as_content => 1) : ())
+            });
+        }
+        
+        my $opendnssec = Lim::Plugin::DNS->Client;
+        weaken($self);
+        $opendnssec->ReadZone({
+            zone => \@zones
+        }, sub {
+            my ($call, $response) = @_;
+            
+            unless (defined $self) {
+                undef($opendnssec);
+                return;
+            }
+            
+            if ($call->Successful) {
+                if (exists $response->{zone}) {
+                    foreach my $zone (ref($response->{zone}) eq 'ARRAY' ? @{$response->{zone}} : $response->{zone}) {
+                        $self->cli->println('Zone: ', $zone->{file}, ' (', $zone->{software}, ')');
+                        if (exists $zone->{rr}) {
+                            foreach my $rr (ref($zone->{rr}) eq 'ARRAY' ? @{$zone->{rr}} : $zone->{rr}) {
+                                $self->cli->println(join("\t",
+                                    $rr->{name},
+                                    $rr->{ttl},
+                                    $rr->{class},
+                                    $rr->{type},
+                                    $rr->{rdata}
+                                ));
+                            }
+                        }
+                        elsif (exists $zone->{content}) {
+                            $self->cli->println($zone->{content});
+                        }
+                    }
+                }
                 $self->Successful;
             }
             else {

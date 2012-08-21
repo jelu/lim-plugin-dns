@@ -83,7 +83,8 @@ sub Calls {
                 zone => {
                     '' => 'required',
                     file => 'string',
-                    raw => 'bool optional'
+                    software => 'string optional',
+                    as_content => 'bool optional'
                 }
             },
             out => {
@@ -110,6 +111,7 @@ sub Calls {
                 zone => {
                     '' => 'required',
                     file => 'string',
+                    software => 'string optional',
                     options => {
                         name => 'string',
                         value => 'string'
@@ -129,7 +131,8 @@ sub Calls {
             in => {
                 zone => {
                     '' => 'required',
-                    file => 'string'
+                    file => 'string',
+                    software => 'string optional'
                 }
             }
         },
@@ -211,7 +214,8 @@ sub Commands {
     {
         zones => 1,
         zone => {
-            create => 1
+            create => 1,
+            read => 1
         }
     };
 }

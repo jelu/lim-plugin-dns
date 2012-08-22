@@ -422,6 +422,180 @@ sub option {
     $self->Error;
 }
 
+=head2 function1
+
+=cut
+
+sub rr {
+    my ($self, $cmd) = @_;
+    my $software;
+    my $ttl;
+    my $class;
+    my ($getopt, $args) = Getopt::Long::GetOptionsFromString($cmd,
+        'software:s' => \$software,
+        'ttl:s' => \$ttl,
+        'class:s' => \$class
+    );
+
+    unless ($getopt and scalar @$args) {
+        $self->Error;
+        return;
+    }
+
+    if ($args->[0] eq 'create' and scalar @$args >= 5) {
+        my (undef, $zone, $name, $type, @rdata) = @$args;
+        my $rdata = join(' ', @rdata);
+
+        my $opendnssec = Lim::Plugin::DNS->Client;
+        weaken($self);
+        $opendnssec->CreateZoneRr({
+            zone => {
+                file => $zone,
+                (defined $software ? (software => $software) : ()),
+                rr => {
+                    name => $name,
+                    (defined $ttl ? (ttl => $ttl) : ()),
+                    (defined $class ? (class => $class) : ()),
+                    type => $type,
+                    rdata => $rdata
+                }
+            }
+        }, sub {
+            my ($call, $response) = @_;
+            
+            unless (defined $self) {
+                undef($opendnssec);
+                return;
+            }
+            
+            if ($call->Successful) {
+                $self->cli->println('Zone ', $zone, ' RR ', $name, ' created');
+                $self->Successful;
+            }
+            else {
+                $self->Error($call->Error);
+            }
+            undef($opendnssec);
+        });
+        return;
+    }
+    elsif ($args->[0] eq 'read' and scalar @$args >= 2) {
+        my (undef, $zone, $name) = @$args;
+
+        my $opendnssec = Lim::Plugin::DNS->Client;
+        weaken($self);
+        $opendnssec->ReadZoneRr({
+            zone => {
+                file => $zone,
+                (defined $software ? (software => $software) : ()),
+                (defined $name ? (rr => { name => $name }) : ())
+            }
+        }, sub {
+            my ($call, $response) = @_;
+            
+            unless (defined $self) {
+                undef($opendnssec);
+                return;
+            }
+            
+            if ($call->Successful) {
+                if (exists $response->{zone}) {
+                    foreach my $zone (ref($response->{zone}) eq 'ARRAY' ? @{$response->{zone}} : $response->{zone}) {
+                        $self->cli->println('Zone: ', $zone->{file}, ' (', $zone->{software}, ')');
+                        if (exists $zone->{rr}) {
+                            foreach my $rr (ref($zone->{rr}) eq 'ARRAY' ? @{$zone->{rr}} : $zone->{rr}) {
+                                $self->cli->println(join("\t",
+                                    $rr->{name},
+                                    $rr->{ttl},
+                                    $rr->{class},
+                                    $rr->{type},
+                                    $rr->{rdata}
+                                ));
+                            }
+                        }
+                    }
+                }
+                $self->Successful;
+            }
+            else {
+                $self->Error($call->Error);
+            }
+            undef($opendnssec);
+        });
+        return;
+    }
+    elsif ($args->[0] eq 'update' and scalar @$args >= 5) {
+        my (undef, $zone, $name, $type, @rdata) = @$args;
+        my $rdata = join(' ', @rdata);
+
+        my $opendnssec = Lim::Plugin::DNS->Client;
+        weaken($self);
+        $opendnssec->UpdateZoneRr({
+            zone => {
+                file => $zone,
+                (defined $software ? (software => $software) : ()),
+                rr => {
+                    name => $name,
+                    (defined $ttl ? (ttl => $ttl) : ()),
+                    (defined $class ? (class => $class) : ()),
+                    type => $type,
+                    rdata => $rdata
+                }
+            }
+        }, sub {
+            my ($call, $response) = @_;
+            
+            unless (defined $self) {
+                undef($opendnssec);
+                return;
+            }
+            
+            if ($call->Successful) {
+                $self->cli->println('Zone ', $zone, ' RR ', $name, ' updated');
+                $self->Successful;
+            }
+            else {
+                $self->Error($call->Error);
+            }
+            undef($opendnssec);
+        });
+        return;
+    }
+    elsif ($args->[0] eq 'delete' and scalar @$args == 3) {
+        my (undef, $zone, $name) = @$args;
+
+        my $opendnssec = Lim::Plugin::DNS->Client;
+        weaken($self);
+        $opendnssec->DeleteZoneRr({
+            zone => {
+                file => $zone,
+                (defined $software ? (software => $software) : ()),
+                rr => {
+                    name => $name
+                }
+            }
+        }, sub {
+            my ($call, $response) = @_;
+            
+            unless (defined $self) {
+                undef($opendnssec);
+                return;
+            }
+            
+            if ($call->Successful) {
+                $self->cli->println('Zone ', $zone, ' RR ', $name, ' deleted');
+                $self->Successful;
+            }
+            else {
+                $self->Error($call->Error);
+            }
+            undef($opendnssec);
+        });
+        return;
+    }
+    $self->Error;
+}
+
 =head1 AUTHOR
 
 Jerry Lundström, C<< <lundstrom.jerry at gmail.com> >>

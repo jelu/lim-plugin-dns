@@ -217,7 +217,13 @@ sub Calls {
                         ttl => 'string optional',
                         class => 'string optional',
                         type => 'string',
-                        rdata => 'string'
+                        rdata => 'string',
+                        rr => {
+                            ttl => 'string optional',
+                            class => 'string optional',
+                            type => 'string',
+                            rdata => 'string'
+                        }
                     }
                 }
             }
@@ -259,7 +265,13 @@ sub Calls {
                         ttl => 'string optional',
                         class => 'string optional',
                         type => 'string',
-                        rdata => 'string'
+                        rdata => 'string',
+                        rr => {
+                            ttl => 'string optional',
+                            class => 'string optional',
+                            type => 'string',
+                            rdata => 'string'
+                        }
                     }
                 }
             }
@@ -294,6 +306,12 @@ sub Commands {
             delete => 1,
         },
         option => {
+            create => 1,
+            read => 1,
+            update => 1,
+            delete => 1
+        },
+        rr => {
             create => 1,
             read => 1,
             update => 1,

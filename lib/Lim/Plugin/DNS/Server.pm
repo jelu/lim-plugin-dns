@@ -655,7 +655,7 @@ sub _WriteZoneFile {
 
     if (defined $rr) {
         if (ref($rr) eq 'HASH') {
-            foreach my $name (values %{$rr}) {
+            foreach my $name (keys %{$rr}) {
                 unless (ref($rr->{$name}) eq 'ARRAY') {
                     die 'Invalid rr data structure';
                 }
@@ -1541,9 +1541,104 @@ sub DeleteZoneOption {
 =cut
 
 sub CreateZoneRr {
-    my ($self, $cb) = @_;
-    
-    $self->Error($cb, 'Not Implemented');
+    my ($self, $cb, $q) = @_;
+    my $files = $self->_ScanZoneFile;
+
+    foreach my $zone (ref($q->{zone}) eq 'ARRAY' ? @{$q->{zone}} : $q->{zone}) {
+        my $file;
+
+        if (exists $zone->{software}) {
+            unless (exists $ZoneFilePath{$zone->{software}}) {
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Unknown software '.$zone->{software}.' specified for zone file '.$zone->{file}
+                ));
+                return;
+            }
+            
+            if (exists $files->{$zone->{software}}) {
+                foreach (values %{$files->{$zone->{software}}}) {
+                    if ($_->{write} and ($_->{short} eq $zone->{file} or $_->{name} eq $zone->{file})) {
+                        $file = $_;
+                        last;
+                    }
+                }
+            }
+        }
+        else {
+            foreach my $software (keys %$files) {
+                foreach (values %{$files->{$software}}) {
+                    if ($_->{write} and $_->{name} eq $zone->{file}) {
+                        $file = $_;
+                        last;
+                    }
+                }
+                if (defined $file) {
+                    last;
+                }
+            }
+        }
+
+        unless (defined $file) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to find zone file '.$zone->{file}
+            ));
+            return;
+        }
+        
+        my $fh;
+        unless (defined ($fh = IO::File->new($file->{name}))) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to open zone file '.$zone->{file}
+            ));
+            return;
+        }
+
+        my (@options, @rrs);
+        unless ($self->_ParseZoneFile($fh, \@options, \@rrs)) {
+            $fh->close;
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to parse zone file '.$zone->{file}
+            ));
+            return;
+        }
+        $fh->close;
+        
+        foreach my $rr (ref($zone->{rr}) eq 'ARRAY' ? @{$zone->{rr}} : $zone->{rr}) {
+            push(@rrs, {
+                name => $rr->{name},
+                (exists $rr->{ttl} ? (ttl => $rr->{ttl}) : ()),
+                (exists $rr->{class} ? (class => $rr->{class}) : ()),
+                type => $rr->{type},
+                rdata => $rr->{rdata}
+            });
+            
+            if (exists $rr->{rr}) {
+                foreach (ref($rr->{rr}) eq 'ARRAY' ? @{$rr->{rr}} : $rr->{rr}) {
+                    push(@rrs, {
+                        name => $rr->{name},
+                        (exists $_->{ttl} ? (ttl => $_->{ttl}) : ()),
+                        (exists $_->{class} ? (class => $_->{class}) : ()),
+                        type => $_->{type},
+                        rdata => $_->{rdata}
+                    });
+                }
+            }
+        }
+
+        eval { $self->_WriteZoneFile($file->{name}, \@rrs, \@options); };        
+        if ($@) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to write zone file '.$zone->{file}.': '.$@
+            ));
+            return;
+        }
+    }
+    $self->Successful($cb);
 }
 
 =head2 function1
@@ -1551,9 +1646,112 @@ sub CreateZoneRr {
 =cut
 
 sub ReadZoneRr {
-    my ($self, $cb) = @_;
-    
-    $self->Error($cb, 'Not Implemented');
+    my ($self, $cb, $q) = @_;
+    my $files = $self->_ScanZoneFile;
+    my @zones;
+
+    foreach my $zone (ref($q->{zone}) eq 'ARRAY' ? @{$q->{zone}} : $q->{zone}) {
+        my $file;
+
+        if (exists $zone->{software}) {
+            unless (exists $ZoneFilePath{$zone->{software}}) {
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Unknown software '.$zone->{software}.' specified for zone file '.$zone->{file}
+                ));
+                return;
+            }
+            
+            if (exists $files->{$zone->{software}}) {
+                foreach (values %{$files->{$zone->{software}}}) {
+                    if ($_->{write} and ($_->{short} eq $zone->{file} or $_->{name} eq $zone->{file})) {
+                        $file = $_;
+                        last;
+                    }
+                }
+            }
+        }
+        else {
+            foreach my $software (keys %$files) {
+                foreach (values %{$files->{$software}}) {
+                    if ($_->{write} and $_->{name} eq $zone->{file}) {
+                        $file = $_;
+                        last;
+                    }
+                }
+                if (defined $file) {
+                    last;
+                }
+            }
+        }
+
+        unless (defined $file) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to find zone file '.$zone->{file}
+            ));
+            return;
+        }
+        
+        my $fh;
+        unless (defined ($fh = IO::File->new($file->{name}))) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to open zone file '.$zone->{file}
+            ));
+            return;
+        }
+
+        my @rrs;
+        if (exists $zone->{rr}) {
+            my %rr;
+            unless ($self->_ParseZoneFile($fh, undef, \%rr)) {
+                $fh->close;
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Unable to parse zone file '.$zone->{file}
+                ));
+                return;
+            }
+            
+            foreach my $rr (ref($zone->{rr}) eq 'ARRAY' ? @{$zone->{rr}} : $zone->{rr}) {
+                if (exists $rr{$rr->{name}}) {
+                    foreach (@{$rr{$rr->{name}}}) {
+                        $_->{name} = $rr->{name};
+                        push(@rrs, $_);
+                    }
+                }
+            }
+        }
+        else {
+            unless ($self->_ParseZoneFile($fh, undef, \@rrs)) {
+                $fh->close;
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Unable to parse zone file '.$zone->{file}
+                ));
+                return;
+            }
+        }
+        $fh->close;
+        
+        if (scalar @rrs) {
+            push(@zones, {
+                file => $file->{name},
+                software => $file->{software},
+                rr => scalar @rrs == 1 ? $rrs[0] : \@rrs
+            })
+        }
+    }
+    if (scalar @zones == 1) {
+        $self->Successful($cb, { zone => $zones[0] });
+    }
+    elsif (scalar @zones) {
+        $self->Successful($cb, { zone => \@zones });
+    }
+    else {
+        $self->Successful($cb);
+    }
 }
 
 =head2 function1
@@ -1561,9 +1759,110 @@ sub ReadZoneRr {
 =cut
 
 sub UpdateZoneRr {
-    my ($self, $cb) = @_;
-    
-    $self->Error($cb, 'Not Implemented');
+    my ($self, $cb, $q) = @_;
+    my $files = $self->_ScanZoneFile;
+
+    foreach my $zone (ref($q->{zone}) eq 'ARRAY' ? @{$q->{zone}} : $q->{zone}) {
+        my $file;
+
+        if (exists $zone->{software}) {
+            unless (exists $ZoneFilePath{$zone->{software}}) {
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Unknown software '.$zone->{software}.' specified for zone file '.$zone->{file}
+                ));
+                return;
+            }
+            
+            if (exists $files->{$zone->{software}}) {
+                foreach (values %{$files->{$zone->{software}}}) {
+                    if ($_->{write} and ($_->{short} eq $zone->{file} or $_->{name} eq $zone->{file})) {
+                        $file = $_;
+                        last;
+                    }
+                }
+            }
+        }
+        else {
+            foreach my $software (keys %$files) {
+                foreach (values %{$files->{$software}}) {
+                    if ($_->{write} and $_->{name} eq $zone->{file}) {
+                        $file = $_;
+                        last;
+                    }
+                }
+                if (defined $file) {
+                    last;
+                }
+            }
+        }
+
+        unless (defined $file) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to find zone file '.$zone->{file}
+            ));
+            return;
+        }
+        
+        my $fh;
+        unless (defined ($fh = IO::File->new($file->{name}))) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to open zone file '.$zone->{file}
+            ));
+            return;
+        }
+
+        my (@options, %rr);
+        unless ($self->_ParseZoneFile($fh, \@options, \%rr)) {
+            $fh->close;
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to parse zone file '.$zone->{file}
+            ));
+            return;
+        }
+        $fh->close;
+        
+        foreach my $rr (ref($zone->{rr}) eq 'ARRAY' ? @{$zone->{rr}} : $zone->{rr}) {
+            unless (exists $rr{$rr->{name}}) {
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'RR '.$rr->{name}.' does not exists, can not update it in zone file '.$zone->{file}
+                ));
+                return;
+            }
+
+            $rr{$rr->{name}} = [{
+                (exists $rr->{ttl} ? (ttl => $rr->{ttl}) : ()),
+                (exists $rr->{class} ? (class => $rr->{class}) : ()),
+                type => $rr->{type},
+                rdata => $rr->{rdata}
+            }];
+            
+            if (exists $rr->{rr}) {
+                foreach (ref($rr->{rr}) eq 'ARRAY' ? @{$rr->{rr}} : $rr->{rr}) {
+                    push(@{$rr{$rr->{name}}}, {
+                        (exists $_->{ttl} ? (ttl => $_->{ttl}) : ()),
+                        (exists $_->{class} ? (class => $_->{class}) : ()),
+                        type => $_->{type},
+                        rdata => $_->{rdata}
+                    });
+                }
+            }
+        }
+        
+        eval { $self->_WriteZoneFile($file->{name}, \%rr, \@options); };        
+        if ($@) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to write zone file '.$zone->{file}.': '.$@
+            ));
+            return;
+        }
+    }
+    $self->Successful($cb);
 }
 
 =head2 function1
@@ -1571,9 +1870,89 @@ sub UpdateZoneRr {
 =cut
 
 sub DeleteZoneRr {
-    my ($self, $cb) = @_;
-    
-    $self->Error($cb, 'Not Implemented');
+    my ($self, $cb, $q) = @_;
+    my $files = $self->_ScanZoneFile;
+
+    foreach my $zone (ref($q->{zone}) eq 'ARRAY' ? @{$q->{zone}} : $q->{zone}) {
+        my $file;
+
+        if (exists $zone->{software}) {
+            unless (exists $ZoneFilePath{$zone->{software}}) {
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Unknown software '.$zone->{software}.' specified for zone file '.$zone->{file}
+                ));
+                return;
+            }
+            
+            if (exists $files->{$zone->{software}}) {
+                foreach (values %{$files->{$zone->{software}}}) {
+                    if ($_->{write} and ($_->{short} eq $zone->{file} or $_->{name} eq $zone->{file})) {
+                        $file = $_;
+                        last;
+                    }
+                }
+            }
+        }
+        else {
+            foreach my $software (keys %$files) {
+                foreach (values %{$files->{$software}}) {
+                    if ($_->{write} and $_->{name} eq $zone->{file}) {
+                        $file = $_;
+                        last;
+                    }
+                }
+                if (defined $file) {
+                    last;
+                }
+            }
+        }
+
+        unless (defined $file) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to find zone file '.$zone->{file}
+            ));
+            return;
+        }
+        
+        my $fh;
+        unless (defined ($fh = IO::File->new($file->{name}))) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to open zone file '.$zone->{file}
+            ));
+            return;
+        }
+
+        my (@options, %rr);
+        unless ($self->_ParseZoneFile($fh, \@options, \%rr)) {
+            $fh->close;
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to parse zone file '.$zone->{file}
+            ));
+            return;
+        }
+        $fh->close;
+        
+        # TODO: Make it so you can delete just a specific rr in a rr set?
+        foreach my $rr (ref($zone->{rr}) eq 'ARRAY' ? @{$zone->{rr}} : $zone->{rr}) {
+            if (exists $rr{$rr->{name}}) {
+                delete $rr{$rr->{name}};
+            }
+        }
+
+        eval { $self->_WriteZoneFile($file->{name}, \%rr, \@options); };        
+        if ($@) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to write zone file '.$zone->{file}.': '.$@
+            ));
+            return;
+        }
+    }
+    $self->Successful($cb);
 }
 
 =head1 AUTHOR

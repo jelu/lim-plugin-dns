@@ -9,6 +9,15 @@ For available RPC calls and CLI commands please see:
 
 	perldoc Lim::Plugin::DNS
 
+LIMITATIONS
+
+Zone file editing with regards to options and RRs are currently some what
+limited.
+
+    - All options are placed at the top
+    - Order of options might change when modifying zone file
+    - Order of RRs might change when modifying zone file
+
 INSTALLATION
 
 To install this module, run the following commands:

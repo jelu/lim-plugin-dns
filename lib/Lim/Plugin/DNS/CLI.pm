@@ -353,6 +353,40 @@ sub option {
         });
         return;
     }
+    elsif ($args->[0] eq 'update' and scalar @$args >= 4) {
+        my (undef, $zone, $name, @value) = @$args;
+        my $value = join(' ', @value);
+
+        my $opendnssec = Lim::Plugin::DNS->Client;
+        weaken($self);
+        $opendnssec->UpdateZoneOption({
+            zone => {
+                file => $zone,
+                (defined $software ? (software => $software) : ()),
+                option => {
+                    name => $name,
+                    value => $value
+                }
+            }
+        }, sub {
+            my ($call, $response) = @_;
+            
+            unless (defined $self) {
+                undef($opendnssec);
+                return;
+            }
+            
+            if ($call->Successful) {
+                $self->cli->println('Zone ', $zone, ' option ', $name, ' updated');
+                $self->Successful;
+            }
+            else {
+                $self->Error($call->Error);
+            }
+            undef($opendnssec);
+        });
+        return;
+    }
     $self->Error;
 }
 

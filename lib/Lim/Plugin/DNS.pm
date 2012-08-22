@@ -295,7 +295,8 @@ sub Commands {
         },
         option => {
             create => 1,
-            read => 1
+            read => 1,
+            update => 1
         }
     };
 }

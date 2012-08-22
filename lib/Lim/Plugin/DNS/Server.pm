@@ -745,14 +745,14 @@ sub CreateZone {
             unless (exists $zone->{software}) {
                 $self->Error($cb, Lim::Error->new(
                     code => 500,
-                    message => 'Zone file ', $zone->{file}, ' without path needs to specify what software it belongs to'
+                    message => 'Zone file '.$zone->{file}.' without path needs to specify what software it belongs to'
                 ));
                 return;
             }
             unless (exists $ZoneFilePath{$zone->{software}}) {
                 $self->Error($cb, Lim::Error->new(
                     code => 500,
-                    message => 'Unknown software ', $zone->{software}, ' specified for zone file ', $zone->{file}
+                    message => 'Unknown software '.$zone->{software}.' specified for zone file '.$zone->{file}
                 ));
                 return;
             }
@@ -794,21 +794,21 @@ sub CreateZone {
         unless (defined $file) {
             $self->Error($cb, Lim::Error->new(
                 code => 500,
-                message => 'Zone file ', $zone->{file}, ' invalid or restricted to be created on specified path'
+                message => 'Zone file '.$zone->{file}.' invalid or restricted to be created on specified path'
             ));
             return;
         }
         if (-f $file) {
             $self->Error($cb, Lim::Error->new(
                 code => 500,
-                message => 'Zone file ', $zone->{file}, ' already exists'
+                message => 'Zone file '.$zone->{file}.' already exists'
             ));
             return;
         }
         if (exists $zone->{content} and (exists $zone->{options} or exists $zone->{rr})) {
             $self->Error($cb, Lim::Error->new(
                 code => 500,
-                message => 'Zone file ', $zone->{file}, ' can not specify content and also specify options or rr'
+                message => 'Zone file '.$zone->{file}.' can not specify content and also specify options or rr'
             ));
             return;
         }
@@ -817,7 +817,7 @@ sub CreateZone {
             unless (Lim::Util::FileWriteContent($file, $zone->{content})) {
                 $self->Error($cb, Lim::Error->new(
                     code => 500,
-                    message => 'Unable to write content of zone file ', $zone->{file}, ' to file ', $file
+                    message => 'Unable to write content of zone file '.$zone->{file}.' to file '.$file
                 ));
                 return;
             }
@@ -828,7 +828,7 @@ sub CreateZone {
             unless (defined $tmp) {
                 $self->Error($cb, Lim::Error->new(
                     code => 500,
-                    message => 'Unable to create temporary file for zone file ', $zone->{file}
+                    message => 'Unable to create temporary file for zone file '.$zone->{file}
                 ));
                 return;
             }
@@ -868,7 +868,7 @@ sub CreateZone {
             unless (rename($tmp->filename, $file)) {
                 $self->Error($cb, Lim::Error->new(
                     code => 500,
-                    message => 'Unable to rename the temporary file ', $tmp->filename, ' to ', $file, ' for zone file ', $zone->{file}
+                    message => 'Unable to rename the temporary file '.$tmp->filename.' to '.$file.' for zone file '.$zone->{file}
                 ));
                 return;
             }
@@ -893,7 +893,7 @@ sub ReadZone {
             unless (exists $ZoneFilePath{$zone->{software}}) {
                 $self->Error($cb, Lim::Error->new(
                     code => 500,
-                    message => 'Unknown software ', $zone->{software}, ' specified for zone file ', $zone->{file}
+                    message => 'Unknown software '.$zone->{software}.' specified for zone file '.$zone->{file}
                 ));
                 return;
             }
@@ -931,7 +931,7 @@ sub ReadZone {
             unless (defined $content) {
                 $self->Error($cb, Lim::Error->new(
                     code => 500,
-                    message => 'Unable to read zone file ', $zone->{file}
+                    message => 'Unable to read zone file '.$zone->{file}
                 ));
                 return;
             }
@@ -947,16 +947,17 @@ sub ReadZone {
         unless (defined ($fh = IO::File->new($file->{name}))) {
             $self->Error($cb, Lim::Error->new(
                 code => 500,
-                message => 'Unable to open zone file ', $zone->{file}
+                message => 'Unable to open zone file '.$zone->{file}
             ));
             return;
         }
         
         my (@options, @rrs);
         unless ($self->_ParseZoneFile($fh, \@options, \@rrs)) {
+            $fh->close;
             $self->Error($cb, Lim::Error->new(
                 code => 500,
-                message => 'Unable to parse zone file ', $zone->{file}
+                message => 'Unable to parse zone file '.$zone->{file}
             ));
             return;
         }
@@ -996,7 +997,7 @@ sub UpdateZone {
             unless (exists $ZoneFilePath{$zone->{software}}) {
                 $self->Error($cb, Lim::Error->new(
                     code => 500,
-                    message => 'Unknown software ', $zone->{software}, ' specified for zone file ', $zone->{file}
+                    message => 'Unknown software '.$zone->{software}.' specified for zone file '.$zone->{file}
                 ));
                 return;
             }
@@ -1027,7 +1028,7 @@ sub UpdateZone {
         unless (defined $file) {
             $self->Error($cb, Lim::Error->new(
                 code => 500,
-                message => 'Unable to find zone file ', $zone->{file}
+                message => 'Unable to find zone file '.$zone->{file}
             ));
             return;
         }
@@ -1036,7 +1037,7 @@ sub UpdateZone {
             unless (Lim::Util::FileWriteContent($file->{name}, $zone->{content})) {
                 $self->Error($cb, Lim::Error->new(
                     code => 500,
-                    message => 'Unable to write content of zone file ', $zone->{file}
+                    message => 'Unable to write content of zone file '.$zone->{file}
                 ));
                 return;
             }
@@ -1046,7 +1047,7 @@ sub UpdateZone {
             unless (defined $tmp) {
                 $self->Error($cb, Lim::Error->new(
                     code => 500,
-                    message => 'Unable to create temporary file for zone file ', $zone->{file}
+                    message => 'Unable to create temporary file for zone file '.$zone->{file}
                 ));
                 return;
             }
@@ -1086,7 +1087,7 @@ sub UpdateZone {
             unless (rename($tmp->filename, $file->{name})) {
                 $self->Error($cb, Lim::Error->new(
                     code => 500,
-                    message => 'Unable to rename the temporary file ', $tmp->filename, ' to ', $file->{name}, ' for zone file ', $zone->{file}
+                    message => 'Unable to rename the temporary file '.$tmp->filename.' to '.$file->{name}.' for zone file '.$zone->{file}
                 ));
                 return;
             }
@@ -1110,7 +1111,7 @@ sub DeleteZone {
             unless (exists $ZoneFilePath{$zone->{software}}) {
                 $self->Error($cb, Lim::Error->new(
                     code => 500,
-                    message => 'Unknown software ', $zone->{software}, ' specified for zone file ', $zone->{file}
+                    message => 'Unknown software '.$zone->{software}.' specified for zone file '.$zone->{file}
                 ));
                 return;
             }
@@ -1145,7 +1146,7 @@ sub DeleteZone {
         unless (unlink($file->{name})) {
             $self->Error($cb, Lim::Error->new(
                 code => 500,
-                message => 'Unable to remove file ', $file->{name}, ' for zone file ', $zone->{file}
+                message => 'Unable to remove file '.$file->{name}.' for zone file '.$zone->{file}
             ));
             return;
         }
@@ -1168,7 +1169,7 @@ sub CreateZoneOption {
             unless (exists $ZoneFilePath{$zone->{software}}) {
                 $self->Error($cb, Lim::Error->new(
                     code => 500,
-                    message => 'Unknown software ', $zone->{software}, ' specified for zone file ', $zone->{file}
+                    message => 'Unknown software '.$zone->{software}.' specified for zone file '.$zone->{file}
                 ));
                 return;
             }
@@ -1199,7 +1200,7 @@ sub CreateZoneOption {
         unless (defined $file) {
             $self->Error($cb, Lim::Error->new(
                 code => 500,
-                message => 'Unable to find zone file ', $zone->{file}
+                message => 'Unable to find zone file '.$zone->{file}
             ));
             return;
         }
@@ -1208,16 +1209,17 @@ sub CreateZoneOption {
         unless (defined ($fh = IO::File->new($file->{name}))) {
             $self->Error($cb, Lim::Error->new(
                 code => 500,
-                message => 'Unable to open zone file ', $zone->{file}
+                message => 'Unable to open zone file '.$zone->{file}
             ));
             return;
         }
 
         my (@options, @rrs);
         unless ($self->_ParseZoneFile($fh, \@options, \@rrs)) {
+            $fh->close;
             $self->Error($cb, Lim::Error->new(
                 code => 500,
-                message => 'Unable to parse zone file ', $zone->{file}
+                message => 'Unable to parse zone file '.$zone->{file}
             ));
             return;
         }
@@ -1229,7 +1231,7 @@ sub CreateZoneOption {
         if ($@) {
             $self->Error($cb, Lim::Error->new(
                 code => 500,
-                message => 'Unable to write zone file ', $zone->{file}, ': ', $@
+                message => 'Unable to write zone file '.$zone->{file}.': '.$@
             ));
             return;
         }
@@ -1253,7 +1255,7 @@ sub ReadZoneOption {
             unless (exists $ZoneFilePath{$zone->{software}}) {
                 $self->Error($cb, Lim::Error->new(
                     code => 500,
-                    message => 'Unknown software ', $zone->{software}, ' specified for zone file ', $zone->{file}
+                    message => 'Unknown software '.$zone->{software}.' specified for zone file '.$zone->{file}
                 ));
                 return;
             }
@@ -1284,7 +1286,7 @@ sub ReadZoneOption {
         unless (defined $file) {
             $self->Error($cb, Lim::Error->new(
                 code => 500,
-                message => 'Unable to find zone file ', $zone->{file}
+                message => 'Unable to find zone file '.$zone->{file}
             ));
             return;
         }
@@ -1293,7 +1295,7 @@ sub ReadZoneOption {
         unless (defined ($fh = IO::File->new($file->{name}))) {
             $self->Error($cb, Lim::Error->new(
                 code => 500,
-                message => 'Unable to open zone file ', $zone->{file}
+                message => 'Unable to open zone file '.$zone->{file}
             ));
             return;
         }
@@ -1305,7 +1307,7 @@ sub ReadZoneOption {
                 $fh->close;
                 $self->Error($cb, Lim::Error->new(
                     code => 500,
-                    message => 'Unable to parse zone file ', $zone->{file}
+                    message => 'Unable to parse zone file '.$zone->{file}
                 ));
                 return;
             }
@@ -1324,7 +1326,7 @@ sub ReadZoneOption {
                 $fh->close;
                 $self->Error($cb, Lim::Error->new(
                     code => 500,
-                    message => 'Unable to parse zone file ', $zone->{file}
+                    message => 'Unable to parse zone file '.$zone->{file}
                 ));
                 return;
             }
@@ -1355,9 +1357,94 @@ sub ReadZoneOption {
 =cut
 
 sub UpdateZoneOption {
-    my ($self, $cb) = @_;
-    
-    $self->Error($cb, 'Not Implemented');
+    my ($self, $cb, $q) = @_;
+    my $files = $self->_ScanZoneFile;
+
+    foreach my $zone (ref($q->{zone}) eq 'ARRAY' ? @{$q->{zone}} : $q->{zone}) {
+        my $file;
+
+        if (exists $zone->{software}) {
+            unless (exists $ZoneFilePath{$zone->{software}}) {
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Unknown software '.$zone->{software}.' specified for zone file '.$zone->{file}
+                ));
+                return;
+            }
+            
+            if (exists $files->{$zone->{software}}) {
+                foreach (values %{$files->{$zone->{software}}}) {
+                    if ($_->{write} and ($_->{short} eq $zone->{file} or $_->{name} eq $zone->{file})) {
+                        $file = $_;
+                        last;
+                    }
+                }
+            }
+        }
+        else {
+            foreach my $software (keys %$files) {
+                foreach (values %{$files->{$software}}) {
+                    if ($_->{write} and $_->{name} eq $zone->{file}) {
+                        $file = $_;
+                        last;
+                    }
+                }
+                if (defined $file) {
+                    last;
+                }
+            }
+        }
+
+        unless (defined $file) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to find zone file '.$zone->{file}
+            ));
+            return;
+        }
+        
+        my $fh;
+        unless (defined ($fh = IO::File->new($file->{name}))) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to open zone file '.$zone->{file}
+            ));
+            return;
+        }
+
+        my (%option, @rrs);
+        unless ($self->_ParseZoneFile($fh, \%option, \@rrs)) {
+            $fh->close;
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to parse zone file '.$zone->{file}
+            ));
+            return;
+        }
+        $fh->close;
+        
+        foreach my $option (ref($zone->{option}) eq 'ARRAY' ? @{$zone->{option}} : $zone->{option}) {
+            unless (exists $option{$option->{name}}) {
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Option '.$option->{name}.' does not exists, can not update it in zone file '.$zone->{file}
+                ));
+                return;
+            }
+
+            $option{$option->{name}} = $option->{value};
+        }
+
+        eval { $self->_WriteZoneFile($file->{name}, \@rrs, \%option); };        
+        if ($@) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to write zone file '.$zone->{file}.': '.$@
+            ));
+            return;
+        }
+    }
+    $self->Successful($cb);
 }
 
 =head2 function1

@@ -674,6 +674,7 @@ sub CreateZone {
             }
         }
         else {
+            # Mode on file
             my $tmp = Lim::Util::TempFile;
             unless (defined $tmp) {
                 $self->Error($cb, Lim::Error->new(
@@ -685,7 +686,7 @@ sub CreateZone {
             
             if (exists $zone->{options}) {
                 foreach my $option (values %{$zone->{options}}) {
-                    print $tmp '$', $option->{name}, ' ', $option->{value}, "\n";
+                    print $tmp '$', uc($option->{name}), ' ', $option->{value}, "\n";
                 }
             }
             if (exists $zone->{rr}) {
@@ -693,8 +694,8 @@ sub CreateZone {
                     print $tmp join("\t",
                         $rr->{name},
                         exists $rr->{ttl} ? $rr->{ttl} : '',
-                        exists $rr->{class} ? $rr->{class} : '',
-                        $rr->{type},
+                        exists $rr->{class} ? uc($rr->{class}) : '',
+                        uc($rr->{type}),
                         $rr->{rdata}
                         ), "\n";
                     
@@ -703,8 +704,8 @@ sub CreateZone {
                             print $tmp join("\t",
                                 '',
                                 exists $more_rr->{ttl} ? $more_rr->{ttl} : '',
-                                exists $more_rr->{class} ? $more_rr->{class} : '',
-                                $more_rr->{type},
+                                exists $more_rr->{class} ? uc($more_rr->{class}) : '',
+                                uc($more_rr->{type}),
                                 $more_rr->{rdata}
                                 ), "\n";
                         }
@@ -836,9 +837,114 @@ sub ReadZone {
 =cut
 
 sub UpdateZone {
-    my ($self, $cb) = @_;
-    
-    $self->Error($cb, 'Not Implemented');
+    my ($self, $cb, $q) = @_;
+    my $files = $self->_ScanZoneFile;
+
+    foreach my $zone (ref($q->{zone}) eq 'ARRAY' ? @{$q->{zone}} : $q->{zone}) {
+        my ($file, $software);
+
+        if (exists $zone->{software}) {
+            unless (exists $ZoneFilePath{$zone->{software}}) {
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Unknown software ', $zone->{software}, ' specified for zone file ', $zone->{file}
+                ));
+                return;
+            }
+            
+            if (exists $files->{$zone->{software}}) {
+                foreach (values %{$files->{$zone->{software}}}) {
+                    if ($_->{write} and ($_->{short} eq $zone->{file} or $_->{name} eq $zone->{file})) {
+                        $file = $_;
+                        $software = $zone->{software};
+                        last;
+                    }
+                }
+            }
+        }
+        else {
+            foreach $software (keys %$files) {
+                foreach (values %{$files->{$software}}) {
+                    if ($_->{write} and $_->{name} eq $zone->{file}) {
+                        $file = $_;
+                        last;
+                    }
+                }
+                if (defined $file) {
+                    last;
+                }
+            }
+        }
+
+        unless (defined $file) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to find zone file ', $zone->{file}
+            ));
+            return;
+        }
+        
+        if (exists $zone->{content}) {
+            unless (Lim::Util::FileWriteContent($file->{name}, $zone->{content})) {
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Unable to write content of zone file ', $zone->{file}
+                ));
+                return;
+            }
+        }
+        else {
+            my $tmp = Lim::Util::TempFileLikeThis($file->{name});
+            unless (defined $tmp) {
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Unable to create temporary file for zone file ', $zone->{file}
+                ));
+                return;
+            }
+            
+            if (exists $zone->{options}) {
+                foreach my $option (values %{$zone->{options}}) {
+                    print $tmp '$', uc($option->{name}), ' ', $option->{value}, "\n";
+                }
+            }
+            if (exists $zone->{rr}) {
+                foreach my $rr (values %{$zone->{rr}}) {
+                    print $tmp join("\t",
+                        $rr->{name},
+                        exists $rr->{ttl} ? $rr->{ttl} : '',
+                        exists $rr->{class} ? uc($rr->{class}) : '',
+                        uc($rr->{type}),
+                        $rr->{rdata}
+                        ), "\n";
+                    
+                    if (exists $rr->{rr}) {
+                        foreach my $more_rr (values %{$rr->{rr}}) {
+                            print $tmp join("\t",
+                                '',
+                                exists $more_rr->{ttl} ? $more_rr->{ttl} : '',
+                                exists $more_rr->{class} ? uc($more_rr->{class}) : '',
+                                uc($more_rr->{type}),
+                                $more_rr->{rdata}
+                                ), "\n";
+                        }
+                    }
+                }
+            }
+            
+            $tmp->flush;
+            $tmp->close;
+            
+            unless (rename($tmp->filename, $file->{name})) {
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Unable to rename the temporary file ', $tmp->filename, ' to ', $file->{name}, ' for zone file ', $zone->{file}
+                ));
+                return;
+            }
+        }
+    }
+    $self->Successful($cb);
 }
 
 =head2 function1

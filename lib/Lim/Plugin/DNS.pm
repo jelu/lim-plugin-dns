@@ -215,7 +215,8 @@ sub Commands {
         zones => 1,
         zone => {
             create => 1,
-            read => 1
+            read => 1,
+            update => 1
         }
     };
 }

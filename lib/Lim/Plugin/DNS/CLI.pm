@@ -181,6 +181,42 @@ sub zone {
         });
         return;
     }
+    elsif ($args->[0] eq 'update' and scalar @$args == 3) {
+        my (undef, $zone, $file) = @$args;
+        my $content;
+        
+        unless (defined ($content = Lim::Util::FileReadContent($file))) {
+            $self->Error('Unable to read file ', $file, ' to update zone ', $zone);
+            return;
+        }
+        
+        my $opendnssec = Lim::Plugin::DNS->Client;
+        weaken($self);
+        $opendnssec->UpdateZone({
+            zone => {
+                file => $zone,
+                (defined $software ? (software => $software) : ()),
+                content => $content
+            }
+        }, sub {
+            my ($call, $response) = @_;
+            
+            unless (defined $self) {
+                undef($opendnssec);
+                return;
+            }
+            
+            if ($call->Successful) {
+                $self->cli->println('Zone ', $zone, ' updated');
+                $self->Successful;
+            }
+            else {
+                $self->Error($call->Error);
+            }
+            undef($opendnssec);
+        });
+        return;
+    }
     $self->Error;
 }
 

@@ -311,6 +311,48 @@ sub option {
         });
         return;
     }
+    elsif ($args->[0] eq 'read' and scalar @$args >= 2) {
+        my (undef, $zone, $name) = @$args;
+
+        my $opendnssec = Lim::Plugin::DNS->Client;
+        weaken($self);
+        $opendnssec->ReadZoneOption({
+            zone => {
+                file => $zone,
+                (defined $software ? (software => $software) : ()),
+                (defined $name ? (option => { name => $name }) : ())
+            }
+        }, sub {
+            my ($call, $response) = @_;
+            
+            unless (defined $self) {
+                undef($opendnssec);
+                return;
+            }
+            
+            if ($call->Successful) {
+                if (exists $response->{zone}) {
+                    foreach my $zone (ref($response->{zone}) eq 'ARRAY' ? @{$response->{zone}} : $response->{zone}) {
+                        $self->cli->println('Zone: ', $zone->{file}, ' (', $zone->{software}, ')');
+                        if (exists $zone->{option}) {
+                            foreach my $option (ref($zone->{option}) eq 'ARRAY' ? @{$zone->{option}} : $zone->{option}) {
+                                $self->cli->println(join("\t",
+                                    '$'.$option->{name},
+                                    $option->{value}
+                                ));
+                            }
+                        }
+                    }
+                }
+                $self->Successful;
+            }
+            else {
+                $self->Error($call->Error);
+            }
+            undef($opendnssec);
+        });
+        return;
+    }
     $self->Error;
 }
 

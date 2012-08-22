@@ -294,7 +294,8 @@ sub Commands {
             delete => 1,
         },
         option => {
-            create => 1
+            create => 1,
+            read => 1
         }
     };
 }

@@ -323,7 +323,7 @@ sub _ParseZoneFile {
                     $name =~ s/^\$//o;
                     
                     if (defined $option_hash) {
-                        push(@{$option_hash->{$name}}, join(' ', @parts));
+                        $option_hash->{$name} = join(' ', @parts);
                     }
                     elsif (defined $option_array) {
                         push(@$option_array, {
@@ -334,9 +334,6 @@ sub _ParseZoneFile {
                     undef($line);
                     next;
                 }
-                
-                use Data::Dumper;
-                print $name, Dumper(\@parts);
                 
                 my $part = shift(@parts);
                 if (exists $_TYPE{$part}) {
@@ -487,7 +484,7 @@ sub _ParseZoneContent {
                 }
 
                 if (defined $option_hash) {
-                    push(@{$option_hash->{$name}}, $value);
+                    $option_hash->{$name} = $value;
                 }
                 elsif (defined $option_array) {
                     push(@$option_array, {
@@ -1245,9 +1242,112 @@ sub CreateZoneOption {
 =cut
 
 sub ReadZoneOption {
-    my ($self, $cb) = @_;
-    
-    $self->Error($cb, 'Not Implemented');
+    my ($self, $cb, $q) = @_;
+    my $files = $self->_ScanZoneFile;
+    my @zones;
+
+    foreach my $zone (ref($q->{zone}) eq 'ARRAY' ? @{$q->{zone}} : $q->{zone}) {
+        my $file;
+
+        if (exists $zone->{software}) {
+            unless (exists $ZoneFilePath{$zone->{software}}) {
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Unknown software ', $zone->{software}, ' specified for zone file ', $zone->{file}
+                ));
+                return;
+            }
+            
+            if (exists $files->{$zone->{software}}) {
+                foreach (values %{$files->{$zone->{software}}}) {
+                    if ($_->{write} and ($_->{short} eq $zone->{file} or $_->{name} eq $zone->{file})) {
+                        $file = $_;
+                        last;
+                    }
+                }
+            }
+        }
+        else {
+            foreach my $software (keys %$files) {
+                foreach (values %{$files->{$software}}) {
+                    if ($_->{write} and $_->{name} eq $zone->{file}) {
+                        $file = $_;
+                        last;
+                    }
+                }
+                if (defined $file) {
+                    last;
+                }
+            }
+        }
+
+        unless (defined $file) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to find zone file ', $zone->{file}
+            ));
+            return;
+        }
+        
+        my $fh;
+        unless (defined ($fh = IO::File->new($file->{name}))) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to open zone file ', $zone->{file}
+            ));
+            return;
+        }
+
+        my @options;
+        if (exists $zone->{option}) {
+            my %option;
+            unless ($self->_ParseZoneFile($fh, \%option)) {
+                $fh->close;
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Unable to parse zone file ', $zone->{file}
+                ));
+                return;
+            }
+            
+            foreach my $option (ref($zone->{option}) eq 'ARRAY' ? @{$zone->{option}} : $zone->{option}) {
+                if (exists $option{$option->{name}}) {
+                    push(@options, {
+                        name => $option->{name},
+                        value => $option{$option->{name}}
+                    });
+                }
+            }
+        }
+        else {
+            unless ($self->_ParseZoneFile($fh, \@options)) {
+                $fh->close;
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Unable to parse zone file ', $zone->{file}
+                ));
+                return;
+            }
+        }
+        $fh->close;
+        
+        if (scalar @options) {
+            push(@zones, {
+                file => $file->{name},
+                software => $file->{software},
+                option => scalar @options == 1 ? $options[0] : \@options
+            })
+        }
+    }
+    if (scalar @zones == 1) {
+        $self->Successful($cb, { zone => $zones[0] });
+    }
+    elsif (scalar @zones) {
+        $self->Successful($cb, { zone => \@zones });
+    }
+    else {
+        $self->Successful($cb);
+    }
 }
 
 =head2 function1

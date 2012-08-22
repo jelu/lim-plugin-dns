@@ -387,6 +387,38 @@ sub option {
         });
         return;
     }
+    elsif ($args->[0] eq 'delete' and scalar @$args == 3) {
+        my (undef, $zone, $name) = @$args;
+
+        my $opendnssec = Lim::Plugin::DNS->Client;
+        weaken($self);
+        $opendnssec->DeleteZoneOption({
+            zone => {
+                file => $zone,
+                (defined $software ? (software => $software) : ()),
+                option => {
+                    name => $name
+                }
+            }
+        }, sub {
+            my ($call, $response) = @_;
+            
+            unless (defined $self) {
+                undef($opendnssec);
+                return;
+            }
+            
+            if ($call->Successful) {
+                $self->cli->println('Zone ', $zone, ' option ', $name, ' deleted');
+                $self->Successful;
+            }
+            else {
+                $self->Error($call->Error);
+            }
+            undef($opendnssec);
+        });
+        return;
+    }
     $self->Error;
 }
 

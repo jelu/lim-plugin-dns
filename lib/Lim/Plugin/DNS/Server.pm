@@ -1452,9 +1452,88 @@ sub UpdateZoneOption {
 =cut
 
 sub DeleteZoneOption {
-    my ($self, $cb) = @_;
-    
-    $self->Error($cb, 'Not Implemented');
+    my ($self, $cb, $q) = @_;
+    my $files = $self->_ScanZoneFile;
+
+    foreach my $zone (ref($q->{zone}) eq 'ARRAY' ? @{$q->{zone}} : $q->{zone}) {
+        my $file;
+
+        if (exists $zone->{software}) {
+            unless (exists $ZoneFilePath{$zone->{software}}) {
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Unknown software '.$zone->{software}.' specified for zone file '.$zone->{file}
+                ));
+                return;
+            }
+            
+            if (exists $files->{$zone->{software}}) {
+                foreach (values %{$files->{$zone->{software}}}) {
+                    if ($_->{write} and ($_->{short} eq $zone->{file} or $_->{name} eq $zone->{file})) {
+                        $file = $_;
+                        last;
+                    }
+                }
+            }
+        }
+        else {
+            foreach my $software (keys %$files) {
+                foreach (values %{$files->{$software}}) {
+                    if ($_->{write} and $_->{name} eq $zone->{file}) {
+                        $file = $_;
+                        last;
+                    }
+                }
+                if (defined $file) {
+                    last;
+                }
+            }
+        }
+
+        unless (defined $file) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to find zone file '.$zone->{file}
+            ));
+            return;
+        }
+        
+        my $fh;
+        unless (defined ($fh = IO::File->new($file->{name}))) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to open zone file '.$zone->{file}
+            ));
+            return;
+        }
+
+        my (%option, @rrs);
+        unless ($self->_ParseZoneFile($fh, \%option, \@rrs)) {
+            $fh->close;
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to parse zone file '.$zone->{file}
+            ));
+            return;
+        }
+        $fh->close;
+        
+        foreach my $option (ref($zone->{option}) eq 'ARRAY' ? @{$zone->{option}} : $zone->{option}) {
+            if (exists $option{$option->{name}}) {
+                delete $option{$option->{name}};
+            }
+        }
+
+        eval { $self->_WriteZoneFile($file->{name}, \@rrs, \%option); };        
+        if ($@) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to write zone file '.$zone->{file}.': '.$@
+            ));
+            return;
+        }
+    }
+    $self->Successful($cb);
 }
 
 =head2 function1

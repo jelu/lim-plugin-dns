@@ -1008,6 +1008,46 @@ sub DeleteZone {
 
 =cut
 
+sub CreateZoneOption {
+    my ($self, $cb) = @_;
+    
+    $self->Error($cb, 'Not Implemented');
+}
+
+=head2 function1
+
+=cut
+
+sub ReadZoneOption {
+    my ($self, $cb) = @_;
+    
+    $self->Error($cb, 'Not Implemented');
+}
+
+=head2 function1
+
+=cut
+
+sub UpdateZoneOption {
+    my ($self, $cb) = @_;
+    
+    $self->Error($cb, 'Not Implemented');
+}
+
+=head2 function1
+
+=cut
+
+sub DeleteZoneOption {
+    my ($self, $cb) = @_;
+    
+    $self->Error($cb, 'Not Implemented');
+}
+
+=head2 function1
+
+=cut
+
 sub CreateZoneRr {
     my ($self, $cb) = @_;
     

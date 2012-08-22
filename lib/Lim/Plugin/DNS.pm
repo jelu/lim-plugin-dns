@@ -137,6 +137,69 @@ sub Calls {
             }
         },
         #
+        # Zone Option
+        #
+        CreateZoneOption => {
+            in => {
+                zone => {
+                    '' => 'required',
+                    file => 'string',
+                    software => 'string optional',
+                    options => {
+                        name => 'string',
+                        value => 'string'
+                    }
+                }
+            }
+        },
+        ReadZoneOption => {
+            in => {
+                zone => {
+                    '' => 'required',
+                    file => 'string',
+                    software => 'string optional',
+                    options => {
+                        name => 'string'
+                    }
+                }
+            },
+            out => {
+                zone => {
+                    file => 'string',
+                    software => 'string optional',
+                    options => {
+                        name => 'string',
+                        value => 'string'
+                    }
+                }
+            }
+        },
+        UpdateZoneOption => {
+            in => {
+                zone => {
+                    '' => 'required',
+                    file => 'string',
+                    software => 'string optional',
+                    options => {
+                        name => 'string',
+                        value => 'string'
+                    }
+                }
+            }
+        },
+        DeleteZoneOption => {
+            in => {
+                zone => {
+                    '' => 'required',
+                    file => 'string',
+                    software => 'string optional',
+                    options => {
+                        name => 'string'
+                    }
+                }
+            }
+        },
+        #
         # Zone Resource Record
         #
         CreateZoneRr => {
@@ -144,6 +207,7 @@ sub Calls {
                 zone => {
                     '' => 'required',
                     file => 'string',
+                    software => 'string optional',
                     rr => {
                         name => 'string',
                         ttl => 'string optional',
@@ -159,6 +223,7 @@ sub Calls {
                 zone => {
                     '' => 'required',
                     file => 'string',
+                    software => 'string optional',
                     rr => {
                         name => 'string'
                     }
@@ -167,6 +232,7 @@ sub Calls {
             out => {
                 zone => {
                     file => 'string',
+                    software => 'string optional',
                     rr => {
                         name => 'string',
                         ttl => 'string optional',
@@ -182,6 +248,7 @@ sub Calls {
                 zone => {
                     '' => 'required',
                     file => 'string',
+                    software => 'string optional',
                     rr => {
                         name => 'string',
                         ttl => 'string optional',
@@ -197,6 +264,7 @@ sub Calls {
                 zone => {
                     '' => 'required',
                     file => 'string',
+                    software => 'string optional',
                     rr => {
                         name => 'string'
                     }

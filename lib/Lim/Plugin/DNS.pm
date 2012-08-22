@@ -160,7 +160,6 @@ sub Calls {
                     file => 'string',
                     software => 'string optional',
                     option => {
-                        '' => 'required',
                         name => 'string'
                     }
                 }
@@ -230,7 +229,6 @@ sub Calls {
                     file => 'string',
                     software => 'string optional',
                     rr => {
-                        '' => 'required',
                         name => 'string'
                     }
                 }

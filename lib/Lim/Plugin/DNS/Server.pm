@@ -841,7 +841,7 @@ sub UpdateZone {
     my $files = $self->_ScanZoneFile;
 
     foreach my $zone (ref($q->{zone}) eq 'ARRAY' ? @{$q->{zone}} : $q->{zone}) {
-        my ($file, $software);
+        my $file;
 
         if (exists $zone->{software}) {
             unless (exists $ZoneFilePath{$zone->{software}}) {
@@ -856,14 +856,13 @@ sub UpdateZone {
                 foreach (values %{$files->{$zone->{software}}}) {
                     if ($_->{write} and ($_->{short} eq $zone->{file} or $_->{name} eq $zone->{file})) {
                         $file = $_;
-                        $software = $zone->{software};
                         last;
                     }
                 }
             }
         }
         else {
-            foreach $software (keys %$files) {
+            foreach my $software (keys %$files) {
                 foreach (values %{$files->{$software}}) {
                     if ($_->{write} and $_->{name} eq $zone->{file}) {
                         $file = $_;
@@ -952,9 +951,57 @@ sub UpdateZone {
 =cut
 
 sub DeleteZone {
-    my ($self, $cb) = @_;
-    
-    $self->Error($cb, 'Not Implemented');
+    my ($self, $cb, $q) = @_;
+    my $files = $self->_ScanZoneFile;
+
+    foreach my $zone (ref($q->{zone}) eq 'ARRAY' ? @{$q->{zone}} : $q->{zone}) {
+        my $file;
+
+        if (exists $zone->{software}) {
+            unless (exists $ZoneFilePath{$zone->{software}}) {
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Unknown software ', $zone->{software}, ' specified for zone file ', $zone->{file}
+                ));
+                return;
+            }
+            
+            if (exists $files->{$zone->{software}}) {
+                foreach (values %{$files->{$zone->{software}}}) {
+                    if ($_->{write} and ($_->{short} eq $zone->{file} or $_->{name} eq $zone->{file})) {
+                        $file = $_;
+                        last;
+                    }
+                }
+            }
+        }
+        else {
+            foreach my $software (keys %$files) {
+                foreach (values %{$files->{$software}}) {
+                    if ($_->{write} and $_->{name} eq $zone->{file}) {
+                        $file = $_;
+                        last;
+                    }
+                }
+                if (defined $file) {
+                    last;
+                }
+            }
+        }
+
+        unless (defined $file) {
+            next;
+        }
+
+        unless (unlink($file->{name})) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to remove file ', $file->{name}, ' for zone file ', $zone->{file}
+            ));
+            return;
+        }
+    }
+    $self->Successful($cb);
 }
 
 =head2 function1

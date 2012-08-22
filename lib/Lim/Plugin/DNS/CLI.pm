@@ -156,19 +156,29 @@ sub zone {
                 if (exists $response->{zone}) {
                     foreach my $zone (ref($response->{zone}) eq 'ARRAY' ? @{$response->{zone}} : $response->{zone}) {
                         $self->cli->println('Zone: ', $zone->{file}, ' (', $zone->{software}, ')');
-                        if (exists $zone->{rr}) {
-                            foreach my $rr (ref($zone->{rr}) eq 'ARRAY' ? @{$zone->{rr}} : $zone->{rr}) {
-                                $self->cli->println(join("\t",
-                                    $rr->{name},
-                                    $rr->{ttl},
-                                    $rr->{class},
-                                    $rr->{type},
-                                    $rr->{rdata}
-                                ));
-                            }
-                        }
-                        elsif (exists $zone->{content}) {
+                        if (exists $zone->{content}) {
                             $self->cli->println($zone->{content});
+                        }
+                        else {
+                            if (exists $zone->{option}) {
+                                foreach my $option (ref($zone->{option}) eq 'ARRAY' ? @{$zone->{option}} : $zone->{option}) {
+                                    $self->cli->println(join("\t",
+                                        '$'.$option->{name},
+                                        $option->{value}
+                                    ));
+                                }
+                            }
+                            if (exists $zone->{rr}) {
+                                foreach my $rr (ref($zone->{rr}) eq 'ARRAY' ? @{$zone->{rr}} : $zone->{rr}) {
+                                    $self->cli->println(join("\t",
+                                        $rr->{name},
+                                        $rr->{ttl},
+                                        $rr->{class},
+                                        $rr->{type},
+                                        $rr->{rdata}
+                                    ));
+                                }
+                            }
                         }
                     }
                 }
@@ -239,6 +249,59 @@ sub zone {
             
             if ($call->Successful) {
                 $self->cli->println('Zone ', $zone, ' deleted');
+                $self->Successful;
+            }
+            else {
+                $self->Error($call->Error);
+            }
+            undef($opendnssec);
+        });
+        return;
+    }
+    $self->Error;
+}
+
+=head2 function1
+
+=cut
+
+sub option {
+    my ($self, $cmd) = @_;
+    my $software;
+    my ($getopt, $args) = Getopt::Long::GetOptionsFromString($cmd,
+        'software:s' => \$software
+    );
+
+    unless ($getopt and scalar @$args) {
+        $self->Error;
+        return;
+    }
+
+    if ($args->[0] eq 'create' and scalar @$args >= 4) {
+        my (undef, $zone, $name, @value) = @$args;
+        my $value = join(' ', @value);
+
+        my $opendnssec = Lim::Plugin::DNS->Client;
+        weaken($self);
+        $opendnssec->CreateZoneOption({
+            zone => {
+                file => $zone,
+                (defined $software ? (software => $software) : ()),
+                option => {
+                    name => $name,
+                    value => $value
+                }
+            }
+        }, sub {
+            my ($call, $response) = @_;
+            
+            unless (defined $self) {
+                undef($opendnssec);
+                return;
+            }
+            
+            if ($call->Successful) {
+                $self->cli->println('Zone ', $zone, ' option ', $name, ' created');
                 $self->Successful;
             }
             else {

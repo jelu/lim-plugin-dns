@@ -57,7 +57,7 @@ sub Calls {
                     '' => 'required',
                     file => 'string',
                     software => 'string optional',
-                    options => {
+                    option => {
                         name => 'string',
                         value => 'string'
                     },
@@ -91,7 +91,7 @@ sub Calls {
                 zone => {
                     file => 'string',
                     software => 'string optional',
-                    options => {
+                    option => {
                         name => 'string',
                         value => 'string'
                     },
@@ -112,7 +112,7 @@ sub Calls {
                     '' => 'required',
                     file => 'string',
                     software => 'string optional',
-                    options => {
+                    option => {
                         name => 'string',
                         value => 'string'
                     },
@@ -145,7 +145,8 @@ sub Calls {
                     '' => 'required',
                     file => 'string',
                     software => 'string optional',
-                    options => {
+                    option => {
+                        '' => 'required',
                         name => 'string',
                         value => 'string'
                     }
@@ -158,7 +159,8 @@ sub Calls {
                     '' => 'required',
                     file => 'string',
                     software => 'string optional',
-                    options => {
+                    option => {
+                        '' => 'required',
                         name => 'string'
                     }
                 }
@@ -167,7 +169,7 @@ sub Calls {
                 zone => {
                     file => 'string',
                     software => 'string optional',
-                    options => {
+                    option => {
                         name => 'string',
                         value => 'string'
                     }
@@ -180,7 +182,8 @@ sub Calls {
                     '' => 'required',
                     file => 'string',
                     software => 'string optional',
-                    options => {
+                    option => {
+                        '' => 'required',
                         name => 'string',
                         value => 'string'
                     }
@@ -193,7 +196,8 @@ sub Calls {
                     '' => 'required',
                     file => 'string',
                     software => 'string optional',
-                    options => {
+                    option => {
+                        '' => 'required',
                         name => 'string'
                     }
                 }
@@ -209,6 +213,7 @@ sub Calls {
                     file => 'string',
                     software => 'string optional',
                     rr => {
+                        '' => 'required',
                         name => 'string',
                         ttl => 'string optional',
                         class => 'string optional',
@@ -225,6 +230,7 @@ sub Calls {
                     file => 'string',
                     software => 'string optional',
                     rr => {
+                        '' => 'required',
                         name => 'string'
                     }
                 }
@@ -250,6 +256,7 @@ sub Calls {
                     file => 'string',
                     software => 'string optional',
                     rr => {
+                        '' => 'required',
                         name => 'string',
                         ttl => 'string optional',
                         class => 'string optional',
@@ -266,6 +273,7 @@ sub Calls {
                     file => 'string',
                     software => 'string optional',
                     rr => {
+                        '' => 'required',
                         name => 'string'
                     }
                 }
@@ -285,7 +293,10 @@ sub Commands {
             create => 1,
             read => 1,
             update => 1,
-            delete => 1
+            delete => 1,
+        },
+        option => {
+            create => 1
         }
     };
 }

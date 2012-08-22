@@ -275,8 +275,8 @@ sub _ScanZoneFile {
 =cut
 
 sub _ParseZoneFile {
-    my ($self, $file, $rr) = @_;
-    my ($line, $last, $rr_hash, $rr_array);
+    my ($self, $file, $option, $rr) = @_;
+    my ($line, $last, $rr_hash, $rr_array, $option_hash, $option_array);
     
     if (defined $rr) {
         if (ref($rr) eq 'HASH') {
@@ -287,6 +287,15 @@ sub _ParseZoneFile {
         }
     }
     
+    if (defined $option) {
+        if (ref($option) eq 'HASH') {
+            $option_hash = $option;
+        }
+        elsif (ref($option) eq 'ARRAY') {
+            $option_array = $option;
+        }
+    }
+
     while (<$file>) {
         if (/^([^;]+[^;\s])/o) {
             my $this = $1;
@@ -297,7 +306,7 @@ sub _ParseZoneFile {
                     next;
                 }
             }
-            elsif ($this =~ /\(/o) {
+            elsif ($this =~ /\(/o and $this !~ /\)/o) {
                 $line .= $this;
                 next;
             }
@@ -309,6 +318,26 @@ sub _ParseZoneFile {
             {
                 my @parts = split(/\s+/o, $line);
                 $name = shift(@parts);
+                
+                if ($name =~ /^\$/o) {
+                    $name =~ s/^\$//o;
+                    
+                    if (defined $option_hash) {
+                        push(@{$option_hash->{$name}}, join(' ', @parts));
+                    }
+                    elsif (defined $option_array) {
+                        push(@$option_array, {
+                            name => $name,
+                            value => join(' ', @parts)
+                        })
+                    }
+                    undef($line);
+                    next;
+                }
+                
+                use Data::Dumper;
+                print $name, Dumper(\@parts);
+                
                 my $part = shift(@parts);
                 if (exists $_TYPE{$part}) {
                     $type = $part;
@@ -361,14 +390,14 @@ sub _ParseZoneFile {
                 else {
                     $last = $name;
                 }
-                #$rr{substr($name, 0, 2)}{substr($name, 2, 2)}{substr($name, 4, 4)}{substr($name, 8)} = pack('sssa*', $ttl, $class, $type, $rdata);
+
                 if (defined $rr_hash) {
-                    $rr_hash->{$name} = {
+                    push(@{$rr_hash->{$name}}, {
                         (defined $ttl ? (ttl => $ttl) : ()),
                         (defined $class ? (class => $class) : ()),
                         type => $type,
                         rdata => $rdata
-                    };
+                    });
                 }
                 elsif (defined $rr_array) {
                     push(@$rr_array, {
@@ -391,8 +420,8 @@ sub _ParseZoneFile {
 =cut
 
 sub _ParseZoneContent {
-    my ($self, $buf, $rr) = @_;
-    my ($pre, $name, $ttl, $class, $type, $rdata, $last, $rr_hash, $rr_array);
+    my ($self, $buf, $option, $rr) = @_;
+    my ($pre, $name, $ttl, $class, $type, $rdata, $last, $rr_hash, $rr_array, $option_hash, $option_array);
     my $concat = 0;
     
     if (defined $rr) {
@@ -401,6 +430,15 @@ sub _ParseZoneContent {
         }
         elsif (ref($rr) eq 'ARRAY') {
             $rr_array = $rr;
+        }
+    }
+    
+    if (defined $option) {
+        if (ref($option) eq 'HASH') {
+            $option_hash = $option;
+        }
+        elsif (ref($option) eq 'ARRAY') {
+            $option_array = $option;
         }
     }
 
@@ -428,6 +466,36 @@ sub _ParseZoneContent {
                 unless ($buf =~ /\G[\r\n]*[^\r\n]*/ogc) {
                     last;
                 }
+                next;
+            }
+
+            if ($name =~ /^\$/o) {
+                $name =~ s/^\$//o;
+                
+                my $value;
+                if (defined $ttl) {
+                    $value .= (defined $value ? ' ' : '').$ttl;
+                }
+                if (defined $class) {
+                    $value .= (defined $value ? ' ' : '').$class;
+                }
+                if (defined $type) {
+                    $value .= (defined $value ? ' ' : '').$type;
+                }
+                if (defined $rdata) {
+                    $value .= (defined $value ? ' ' : '').$rdata;
+                }
+
+                if (defined $option_hash) {
+                    push(@{$option_hash->{$name}}, $value);
+                }
+                elsif (defined $option_array) {
+                    push(@$option_array, {
+                        name => $name,
+                        value => $value
+                    })
+                }
+                $pre = $name = $ttl = $class = $type = $rdata = undef;
                 next;
             }
             
@@ -496,7 +564,7 @@ sub _ParseZoneContent {
                 }
             }
         
-            if ($rdata =~ /\(/o) {
+            if ($rdata =~ /\(/o and $rdata !~ /\)/o) {
                 $concat = 1;
                 next;
             }
@@ -529,12 +597,12 @@ sub _ParseZoneContent {
             $last = $name;
         }
         if (defined $rr_hash) {
-            $rr_hash->{$name} = {
+            push(@{$rr_hash->{$name}}, {
                 (defined $ttl ? (ttl => $ttl) : ()),
                 (defined $class ? (class => $class) : ()),
                 type => $type,
                 rdata => $rdata
-            };
+            });
         }
         elsif (defined $rr_array) {
             push(@$rr_array, {
@@ -549,6 +617,90 @@ sub _ParseZoneContent {
         $pre = $name = $ttl = $class = $type = $rdata = undef;
     }
     return 1;
+}
+
+=head2 function1
+
+=cut
+
+sub _WriteZoneFile {
+    my ($self, $file, $rr, $option) = @_;
+    my $tmp;
+        
+    if (-f $file) {
+        $tmp = Lim::Util::TempFileLikeThis($file);
+    }
+    else {
+        $tmp = Lim::Util::TempFile;
+    }
+    unless (defined $tmp) {
+        die 'Unable to create temporary file';
+    }
+    
+    if (defined $option) {
+        if (ref($option) eq 'HASH') {
+            foreach my $name (keys %{$option}) {
+                print $tmp '$', $name, ' ', $option->{$name}, "\n";
+            }
+        }
+        elsif (ref($option) eq 'ARRAY') {
+            foreach (@$option) {
+                unless (ref($_) eq 'HASH') {
+                    die 'Invalid option data structure';
+                }
+                print $tmp '$', $_->{name}, ' ', $_->{value}, "\n";
+            }
+        }
+        else {
+            die 'Invalid parameters';
+        }
+    }
+
+    if (defined $rr) {
+        if (ref($rr) eq 'HASH') {
+            foreach my $name (values %{$rr}) {
+                unless (ref($rr->{$name}) eq 'ARRAY') {
+                    die 'Invalid rr data structure';
+                }
+                foreach (@{$rr->{$name}}) {
+                    unless (ref($_) eq 'HASH') {
+                        die 'Invalid rr data structure';
+                    }
+                    
+                    print $tmp join("\t",
+                        $name,
+                        exists $_->{ttl} ? $_->{ttl} : '',
+                        exists $_->{class} ? uc($_->{class}) : '',
+                        uc($_->{type}),
+                        $_->{rdata}
+                        ), "\n";
+                }
+            }
+        }
+        elsif (ref($rr) eq 'ARRAY') {
+            foreach (@{$rr}) {
+                unless (ref($_) eq 'HASH') {
+                    die 'Invalid rr data structure';
+                }
+                
+                print $tmp join("\t",
+                    $_->{name},
+                    exists $_->{ttl} ? $_->{ttl} : '',
+                    exists $_->{class} ? uc($_->{class}) : '',
+                    uc($_->{type}),
+                    $_->{rdata}
+                    ), "\n";
+            }
+        }
+    }
+            
+    $tmp->flush;
+    $tmp->close;
+            
+    unless (rename($tmp->filename, $file)) {
+        die 'Unable to rename temporary file to real file';
+    }
+    return;
 }
 
 =head2 function1
@@ -803,21 +955,21 @@ sub ReadZone {
             return;
         }
         
-        my $rr = [];
-        unless ($self->_ParseZoneFile($fh, $rr)) {
+        my (@options, @rrs);
+        unless ($self->_ParseZoneFile($fh, \@options, \@rrs)) {
             $self->Error($cb, Lim::Error->new(
                 code => 500,
                 message => 'Unable to parse zone file ', $zone->{file}
             ));
             return;
         }
-
         $fh->close;
-
+        
         push(@zones, {
             file => $file->{name},
             software => $file->{software},
-            rr => scalar @$rr == 1 ? $rr->[0] : $rr
+            (scalar @options ? (option => scalar @options == 1 ? $options[0] : \@options) : ()),
+            (scalar @rrs ? (rr => scalar @rrs == 1 ? $rrs[0] : \@rrs) : ())
         });
     }
     
@@ -1009,9 +1161,83 @@ sub DeleteZone {
 =cut
 
 sub CreateZoneOption {
-    my ($self, $cb) = @_;
-    
-    $self->Error($cb, 'Not Implemented');
+    my ($self, $cb, $q) = @_;
+    my $files = $self->_ScanZoneFile;
+
+    foreach my $zone (ref($q->{zone}) eq 'ARRAY' ? @{$q->{zone}} : $q->{zone}) {
+        my $file;
+
+        if (exists $zone->{software}) {
+            unless (exists $ZoneFilePath{$zone->{software}}) {
+                $self->Error($cb, Lim::Error->new(
+                    code => 500,
+                    message => 'Unknown software ', $zone->{software}, ' specified for zone file ', $zone->{file}
+                ));
+                return;
+            }
+            
+            if (exists $files->{$zone->{software}}) {
+                foreach (values %{$files->{$zone->{software}}}) {
+                    if ($_->{write} and ($_->{short} eq $zone->{file} or $_->{name} eq $zone->{file})) {
+                        $file = $_;
+                        last;
+                    }
+                }
+            }
+        }
+        else {
+            foreach my $software (keys %$files) {
+                foreach (values %{$files->{$software}}) {
+                    if ($_->{write} and $_->{name} eq $zone->{file}) {
+                        $file = $_;
+                        last;
+                    }
+                }
+                if (defined $file) {
+                    last;
+                }
+            }
+        }
+
+        unless (defined $file) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to find zone file ', $zone->{file}
+            ));
+            return;
+        }
+        
+        my $fh;
+        unless (defined ($fh = IO::File->new($file->{name}))) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to open zone file ', $zone->{file}
+            ));
+            return;
+        }
+
+        my (@options, @rrs);
+        unless ($self->_ParseZoneFile($fh, \@options, \@rrs)) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to parse zone file ', $zone->{file}
+            ));
+            return;
+        }
+        $fh->close;
+        
+        push(@options, ref($zone->{option}) eq 'ARRAY' ? @{$zone->{option}} : $zone->{option});
+
+        eval { $self->_WriteZoneFile($file->{name}, \@rrs, \@options); };        
+        if ($@) {
+            $self->Error($cb, Lim::Error->new(
+                code => 500,
+                message => 'Unable to write zone file ', $zone->{file}, ': ', $@
+            ));
+            return;
+        }
+    }
+    $self->Successful($cb);
 }
 
 =head2 function1

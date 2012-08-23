@@ -20,11 +20,33 @@ our $VERSION = '0.10';
 
 =head1 SYNOPSIS
 
-...
+=over 4
 
-=head1 SUBROUTINES/METHODS
+use Lim::Plugin::DNS;
 
-=head2 function1
+# Create a Server object
+$server = Lim::Plugin::DNS->Server;
+
+# Create a Client object
+$client = Lim::Plugin::DNS->Client;
+
+# Create a CLI object
+$cli = Lim::Plugin::DNS->CLI;
+
+=back
+
+=head1 DESCRIPTION
+
+This plugin manage generic DNS related information like zone files via Lim. It
+does not manage DNS software specific information.
+
+=head1 METHODS
+
+=over 4
+
+=item $module_name = Lim::Plugin::DNS->Module
+
+Returns module name.
 
 =cut
 
@@ -32,7 +54,12 @@ sub Module {
     'DNS';
 }
 
-=head2 function1
+=item $call_hash_ref = Lim::Plugin::MyPlugin->Calls
+
+Returns a hash reference to the calls that can be made to this plugin, used both
+in Server and Client to verify input and output arguments.
+
+See CALLS for list of calls and arguments.
 
 =cut
 
@@ -121,7 +148,13 @@ sub Calls {
                         ttl => 'string optional',
                         class => 'string optional',
                         type => 'string',
-                        rdata => 'string'
+                        rdata => 'string',
+                        rr => {
+                            ttl => 'string optional',
+                            class => 'string optional',
+                            type => 'string',
+                            rdata => 'string'
+                        }
                     },
                     content => 'string optional'
                 }
@@ -292,7 +325,11 @@ sub Calls {
     };
 }
 
-=head2 function1
+=item $command_hash_ref = Lim::Plugin::DNS->Commands
+
+Returns a hash reference to the CLI commands that can be made by this plugin.
+
+See COMMANDS for list of commands and arguments.
 
 =cut
 
@@ -319,6 +356,181 @@ sub Commands {
         }
     };
 }
+
+=head1 CALLS
+
+=over 4
+
+See L<Lim::Component::Client> on how calls and callback functions should be
+used.
+
+=item $client->ReadZones(sub { my ($call, $response) = @_; })
+
+Get a list of all zones that can be managed by the plugins.
+
+$response = {
+  zone => # (optional) Single hash or an array of hashes as below:
+  {
+    file => 'string',     # Full path to zone file
+    software => 'string', # Software related to the zone file (optional)
+    read => 'bool',       # True if file can be read, otherwise false
+    write => 'bool',      # True if file can be written to, otherwise false
+  }
+};
+
+=item $client->CreateZone($input, sub { my ($call) = @_; })
+
+Create a new zone file, returns an error if it failed to create the zone file
+otherwise there is no response.
+
+$input = {
+  zone => # Single hash or an array of hashes as below:
+  {
+    file => 'string',     # Full path to zone file or relative path when used
+                          # with software
+    software => 'string', # Software to create zone file in, must be used if
+                          # file is relative path (optional)
+
+    # Zone file data is created by option and rr or by a single content
+
+    option => # (optional) Single hash or an array of hashes as below:
+    {
+      name => 'string', # Name of option (without $)
+      value => 'string' # Value of option
+    },
+    rr => # (optional) Single hash or an array of hashes as below:
+    {
+      name => 'string',  # Name of RR
+      ttl => 'string',   # TTL of RR (optional)
+      class => 'string', # Class of RR (optional)
+      type => 'string',  # Type of RR
+      rdata => 'string', # Rdata of RR
+
+      # If you wish to add more RR to the same name you can specify more rr
+      # inside the rr.
+            
+      rr => # (optional) Single hash or an array of hashes as below:
+      {
+        ttl => 'string',   # TTL of RR (optional)
+        class => 'string', # Class of RR (optional)
+        type => 'string',  # Type of RR
+        rdata => 'string', # Rdata of RR
+      }
+    },
+    content => 'string' # Content of zone file (optional)
+  }
+};
+
+=item $client->ReadZone($input, sub { my ($call, $response) = @_; })
+
+Returns a zone file as a content or split into option and rr.
+
+$input = {
+  zone => # Single hash or an array of hashes as below:
+  {
+    file => 'string',     # Full path to zone file or relative path when used
+                          # with software
+    software => 'string', # Software to create zone file in, must be used if
+                          # file is relative path (optional)
+    as_content => 'bool'  # Specify that content should be returned (optional)
+  }
+};
+
+$response = {
+  zone => # (optional) Single hash or an array of hashes as below:
+  {
+    file => 'string',     # Full path to zone file
+    software => 'string', # Software related to the zone file (optional)
+    option => # (optional) Single hash or an array of hashes as below:
+    {
+      name => 'string', # Name of option (without $)
+      value => 'string' # Value of option
+    },
+    rr => # (optional) Single hash or an array of hashes as below:
+    {
+      name => 'string',  # Name of RR
+      ttl => 'string',   # TTL of RR (optional)
+      class => 'string', # Class of RR (optional)
+      type => 'string',  # Type of RR
+      rdata => 'string', # Rdata of RR
+    },
+    content => 'string' # Content of zone file (optional)
+};
+
+=item $client->UpdateZone($input, sub { my ($call) = @_; })
+
+Update a zone file, this overwrites all zone data. Returns an error if it failed
+to update the zone file otherwise there is no reponse.
+
+$input = {
+  zone => # Single hash or an array of hashes as below:
+  {
+    file => 'string',     # Full path to zone file or relative path when used
+                          # with software
+    software => 'string', # Software to create zone file in, must be used if
+                          # file is relative path (optional)
+
+    # Zone file data is created by option and rr or by a single content
+
+    option => # (optional) Single hash or an array of hashes as below:
+    {
+      name => 'string', # Name of option (without $)
+      value => 'string' # Value of option
+    },
+    rr => # (optional) Single hash or an array of hashes as below:
+    {
+      name => 'string',  # Name of RR
+      ttl => 'string',   # TTL of RR (optional)
+      class => 'string', # Class of RR (optional)
+      type => 'string',  # Type of RR
+      rdata => 'string', # Rdata of RR
+
+      # If you wish to add more RR to the same name you can specify more rr
+      # inside the rr.
+            
+      rr => # (optional) Single hash or an array of hashes as below:
+      {
+        ttl => 'string',   # TTL of RR (optional)
+        class => 'string', # Class of RR (optional)
+        type => 'string',  # Type of RR
+        rdata => 'string', # Rdata of RR
+      }
+    },
+    content => 'string' # Content of zone file (optional)
+  }
+};
+
+=item $client->DeleteZone($input, sub { my ($call) = @_; })
+
+Delete a zone file, returns an error if it failed to delete the zone file
+otherwise there is no reponse.
+
+$input = {
+  zone => # Single hash or an array of hashes as below:
+  {
+    file => 'string',     # Full path to zone file or relative path when used
+                          # with software
+    software => 'string', # Software to create zone file in, must be used if
+                          # file is relative path (optional)
+  }
+};
+
+=item $client->CreateZoneOption($input, sub { my ($call) = @_; })
+=item $client->ReadZoneOption($input, sub { my ($call, $response) = @_; })
+=item $client->UpdateZoneOption($input, sub { my ($call) = @_; })
+=item $client->DeleteZoneOption($input, sub { my ($call) = @_; })
+=item $client->CreateZoneRr($input, sub { my ($call) = @_; })
+=item $client->ReadZoneRr($input, sub { my ($call, $response) = @_; })
+=item $client->UpdateZoneRr($input, sub { my ($call) = @_; })
+=item $client->DeleteZoneRr($input, sub { my ($call) = @_; })
+
+=back
+
+=head1 COMMANDS
+
+=over 4
+
+=back
 
 =head1 AUTHOR
 

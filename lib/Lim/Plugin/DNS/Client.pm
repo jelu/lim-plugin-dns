@@ -10,7 +10,7 @@ use base qw(Lim::Component::Client);
 
 =head1 NAME
 
-...
+Lim::Plugin::DNS::Client - Client class for DNS Manager Lim plugin
 
 =head1 VERSION
 
@@ -22,13 +22,20 @@ our $VERSION = $Lim::Plugin::DNS::VERSION;
 
 =head1 SYNOPSIS
 
-...
+=over 4
 
-=head1 SUBROUTINES/METHODS
+use Lim::Plugin::DNS;
 
-=head2 function1
+# Create a Client object
+$client = Lim::Plugin::DNS->Client;
 
-=cut
+=back
+
+=head1 METHODS
+
+All methods are auto generated from the call definitions.
+
+See L<Lim::Plugin::DNS> for list of calls and arguments.
 
 =head1 AUTHOR
 

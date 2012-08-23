@@ -17,7 +17,8 @@ BuildRequires:  perl(Test::Simple)
 Requires:  perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 
 %description
-...
+This plugin manage generic DNS related information like zone files via Lim. It
+does not manage DNS software specific information.
 
 %package -n perl-Lim-Plugin-DNS-Common
 Summary: Common perl libraries for DNS Lim plugin

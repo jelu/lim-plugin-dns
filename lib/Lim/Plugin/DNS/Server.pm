@@ -17,7 +17,7 @@ use base qw(Lim::Component::Server);
 
 =head1 NAME
 
-...
+Lim::Plugin::DNS::Server - Server class for DNS Manager Lim plugin
 
 =head1 VERSION
 
@@ -124,7 +124,14 @@ BEGIN {
 
 =head1 SYNOPSIS
 
-...
+=over 4
+
+use Lim::Plugin::DNS;
+
+# Create a Server object
+$server = Lim::Plugin::DNS->Server;
+
+=back
 
 =head1 CONFIGURATION
 

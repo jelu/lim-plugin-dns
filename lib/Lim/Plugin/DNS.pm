@@ -681,13 +681,91 @@ file.
 
 =item $client->UpdateZoneRr($input, sub { my ($call) = @_; })
 
+Update a zone resource record, this does not remove other zone resource records.
+Returns an error if it failed to update the zone resource record otherwise there
+is no reponse.
+
+  $input = {
+    zone => # Single hash or an array of hashes as below:
+    {
+      file => 'string',     # Full path to zone file or relative path when used
+                            # with software
+      software => 'string', # Software to create zone file in, must be used if
+                            # file is relative path (optional)
+
+      rr => # Single hash or an array of hashes as below:
+      {
+        name => 'string',   # Name of RR
+        ttl => 'string',    # TTL of RR (optional)
+        class => 'string',  # Class of RR (optional)
+        type => 'string',   # Type of RR
+        rdata => 'string',  # Rdata of RR
+
+        # If you wish to add more RR to the same name you can specify more rr
+        # inside the rr.
+            
+        rr => # (optional) Single hash or an array of hashes as below:
+        {
+          ttl => 'string',   # TTL of RR (optional)
+          class => 'string', # Class of RR (optional)
+          type => 'string',  # Type of RR
+          rdata => 'string', # Rdata of RR
+        }
+      }
+    }
+  };
+
 =item $client->DeleteZoneRr($input, sub { my ($call) = @_; })
+
+Delete a zone resource records, returns an error if it failed to delete the zone
+resource record otherwise there is no reponse.
+
+  $input = {
+    zone => # Single hash or an array of hashes as below:
+    {
+      file => 'string',     # Full path to zone file or relative path when used
+                            # with software
+      software => 'string', # Software to create zone file in, must be used if
+                            # file is relative path (optional)
+
+      rr => # Single hash or an array of hashes as below:
+      {
+        name => 'string'    # Name of RR
+      }
+    }
+  };
 
 =back
 
 =head1 COMMANDS
 
 =over 4
+
+=item zones
+
+=item zone create
+
+=item zone read
+
+=item zone update
+
+=item zone delete
+
+=item option create
+
+=item option read
+
+=item option update
+
+=item option delete
+
+=item rr create
+
+=item rr read
+
+=item rr update
+
+=item rr delete
 
 =back
 

@@ -343,14 +343,14 @@ sub _ParseZoneFile {
                 }
                 
                 my $part = shift(@parts);
-                if (exists $_TYPE{$part}) {
+                if (exists $_TYPE{$part} or $part =~ /^TYPE\d+$/o) {
                     $type = $part;
                 }
                 else {
                     if ($part =~ /^\d+[YyMmWwDdHhSs]?$/o) {
                         $ttl = $part;
                     }
-                    elsif (exists $_CLASS{$part}) {
+                    elsif (exists $_CLASS{$part} or $part =~ /^CLASS\d+$/o) {
                         $class = $part;
                     }
                     else {
@@ -359,14 +359,14 @@ sub _ParseZoneFile {
                     }
             
                     $part = shift(@parts);
-                    if (exists $_TYPE{$part}) {
+                    if (exists $_TYPE{$part} or $part =~ /^TYPE\d+$/o) {
                         $type = $part;
                     }
                     else {
                         if (!defined $ttl and $part =~ /^\d+[YyMmWwDdHhSs]?$/o) {
                             $ttl = $part;
                         }
-                        elsif (!defined $class and exists $_CLASS{$part}) {
+                        elsif (!defined $class and (exists $_CLASS{$part} or $part =~ /^CLASS\d+$/o)) {
                             $class = $part;
                         }
                         else {
@@ -375,7 +375,7 @@ sub _ParseZoneFile {
                         }
                         
                         $type = shift(@parts);
-                        unless (exists $_TYPE{$type}) {
+                        unless (exists $_TYPE{$type} or $type =~ /^TYPE\d+$/o) {
                             undef($line);
                             next;
                         }
@@ -516,25 +516,25 @@ sub _ParseZoneContent {
                 undef($name);
             }
     
-            if (exists $_TYPE{$ttl}) {
+            if (exists $_TYPE{$ttl} or $ttl =~ /^TYPE\d+$/o) {
                 $rdata = $class .
                     (defined $type ? ' '.$type : '') .
                     (defined $rdata ? ' '.$rdata : '');
-                $type = $_TYPE{$ttl};
+                $type = $ttl;
                 undef($ttl);
                 undef($class);
             }
             else {
                 if ($ttl =~ /^\d+[YyMmWwDdHhSs]?$/o) {
-                    if (exists $_TYPE{$class}) {
+                    if (exists $_TYPE{$class} or $class =~ /^TYPE\d+$/o) {
                         $rdata = $type .
                             (defined $rdata ? ' '.$rdata : '');
-                        $type = $_TYPE{$class};
+                        $type = $class;
                         undef($class);
                     }
                     else {
-                        if (exists $_CLASS{$class}) {
-                            $class = $_CLASS{$class};
+                        if (exists $_CLASS{$class} or $class =~ /^CLASS\d+$/o) {
+                            $class = $class;
                         }
                         else {
                             $pre = $name = $ttl = $class = $type = $rdata = undef;
@@ -542,11 +542,11 @@ sub _ParseZoneContent {
                         }
                     }
                 }
-                elsif (exists $_CLASS{$ttl}) {
-                    if (exists $_TYPE{$class}) {
+                elsif (exists $_CLASS{$ttl} or $ttl =~ /^CLASS\d+$/o) {
+                    if (exists $_TYPE{$class} or $class =~ /^TYPE\d+$/o) {
                         $rdata = $type .
                             (defined $rdata ? ' '.$rdata : '');
-                        $type = $_TYPE{$class};
+                        $type = $class;
                         undef($class);
                     }
                     else {
@@ -560,7 +560,7 @@ sub _ParseZoneContent {
                     
                     $_ = $ttl;
                     $ttl = $class;
-                    $class = $_CLASS{$_};
+                    $class = $_;
                 }
                 else {
                     $pre = $name = $ttl = $class = $type = $rdata = undef;

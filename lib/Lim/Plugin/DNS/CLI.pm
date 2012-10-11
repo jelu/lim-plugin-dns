@@ -13,7 +13,7 @@ use base qw(Lim::Component::CLI);
 
 =head1 NAME
 
-...
+Lim::Plugin::DNS::CLI - CLI class for DNS Manager Lim plugin
 
 =head1 VERSION
 
@@ -25,11 +25,20 @@ our $VERSION = $Lim::Plugin::DNS::VERSION;
 
 =head1 SYNOPSIS
 
-...
+You should not use this directly, please see L<Lim::Plugin::DNS> on how to use.
 
-=head1 SUBROUTINES/METHODS
+  use Lim::Plugin::DNS;
+  
+  # Create a CLI object
+  $cli = Lim::Plugin::DNS->CLI;
 
-=head2 function1
+=head1 METHODS
+
+=over 4
+
+=item $cli->zones
+
+List existing zones and related software.
 
 =cut
 
@@ -67,7 +76,21 @@ sub zones {
     });
 }
 
-=head2 function1
+=item $cli->zone("create", "[--software <software>] <zone name> <local zone file>")
+
+Create a new zone with the content of a local zone file.
+
+=item $cli->zone("read", "[--software <software>] <zone names ... >")
+
+Read zones and display content.
+
+=item $cli->zone("update", "[--software <software>] <zone name> <local zone file>")
+
+Update a existing zone with the content of a local zone file.
+
+=item $cli->zone("delete", "[--software <software>] <zone name>")
+
+Delete the specified zone.
 
 =cut
 
@@ -76,8 +99,7 @@ sub zone {
     my $software;
     my $as_content = 0;
     my ($getopt, $args) = Getopt::Long::GetOptionsFromString($cmd,
-        'software:s' => \$software,
-        'as-content' => \$as_content
+        'software:s' => \$software
     );
 
     unless ($getopt and scalar @$args) {
@@ -135,8 +157,7 @@ sub zone {
             
             push(@zones, {
                 file => $_,
-                (defined $software ? (software => $software) : ()),
-                ($as_content ? (as_content => 1) : ())
+                (defined $software ? (software => $software) : ())
             });
         }
         
@@ -261,7 +282,21 @@ sub zone {
     $self->Error;
 }
 
-=head2 function1
+=item $cli->option("create", "[--software <software>] <zone name> <option name> <option values ... >")
+
+Create a new zone option in the an existing zone.
+
+=item $cli->option("read", "[--software <software>] <zone name> [option name]")
+
+Read and display the specified option, or all if not given, from the zone.
+
+=item $cli->option("update", "[--software <software>] <zone name> <option name> <option values ... >")
+
+Update an existing option in a zone.
+
+=item $cli->option("delete", "[--software <software>] <zone name> <option name>")
+
+Delete the specified option from a zone.
 
 =cut
 
@@ -422,7 +457,21 @@ sub option {
     $self->Error;
 }
 
-=head2 function1
+=item $cli->rr("create", "[--software <software>] [--ttl <ttl>] [--class <class>] <zone name> <rr name> <rr type> <rr data ... >")
+
+Create a new resource record in an existing zone.
+
+=item $cli->rr("read", "[--software <software>] <zone name> [rr name]")
+
+Read and display the specified resource record, or all if not given, from the zone.
+
+=item $cli->rr("update", "[--software <software>] [--ttl <ttl>] [--class <class>] <zone name> <rr name> <rr type> <rr data ... >")
+
+Update an existing resource record in a zone.
+
+=item $cli->rr("delete", "[--software <software>] <zone name> <rr name>")
+
+Delete the specified resource record from a zone.
 
 =cut
 
@@ -595,6 +644,8 @@ sub rr {
     }
     $self->Error;
 }
+
+=back
 
 =head1 AUTHOR
 

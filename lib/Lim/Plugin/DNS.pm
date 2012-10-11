@@ -331,24 +331,24 @@ See COMMANDS for list of commands and arguments.
 
 sub Commands {
     {
-        zones => 1,
+        zones => [ 'List existing zones and related software' ],
         zone => {
-            create => 1,
-            read => 1,
-            update => 1,
-            delete => 1,
+            create => [ '[--software <software>] <zone name> <local zone file>', 'Create a new zone with the content of a local zone file' ],
+            read => [ '[--software <software>] <zone names ... >', 'Read zones and display content' ],
+            update => [ '[--software <software>] <zone name> <local zone file>', 'Update a existing zone with the content of a local zone file' ],
+            delete => [ '[--software <software>] <zone name>', 'Delete the specified zone' ]
         },
         option => {
-            create => 1,
-            read => 1,
-            update => 1,
-            delete => 1
+            create => [ '[--software <software>] <zone name> <option name> <option values ... >', 'Create a new zone option in the an existing zone' ],
+            read => [ '[--software <software>] <zone name> [option name]', 'Read and display the specified option, or all if not given, from the zone' ],
+            update => [ '[--software <software>] <zone name> <option name> <option values ... >', 'Update an existing option in a zone' ],
+            delete => [ '[--software <software>] <zone name> <option name>', 'Delete the specified option from a zone' ]
         },
         rr => {
-            create => 1,
-            read => 1,
-            update => 1,
-            delete => 1
+            create => [ '[--software <software>] [--ttl <ttl>] [--class <class>] <zone name> <rr name> <rr type> <rr data ... >', 'Create a new resource record in an existing zone' ],
+            read => [ '[--software <software>] <zone name> [rr name]', 'Read and display the specified resource record, or all if not given, from the zone' ],
+            update => [ '[--software <software>] [--ttl <ttl>] [--class <class>] <zone name> <rr name> <rr type> <rr data ... >', 'Update an existing resource record in a zone' ],
+            delete => [ '[--software <software>] <zone name> <rr name>', 'Delete the specified resource record from a zone' ]
         }
     };
 }
@@ -743,29 +743,55 @@ resource record otherwise there is no reponse.
 
 =item zones
 
-=item zone create
+List existing zones and related software.
 
-=item zone read
+=item zone create [--software <software>] <zone name> <local zone file>
 
-=item zone update
+Create a new zone with the content of a local zone file.
 
-=item zone delete
+=item zone read [--software <software>] <zone names ... >
 
-=item option create
+Read zones and display content.
 
-=item option read
+=item zone update [--software <software>] <zone name> <local zone file>
 
-=item option update
+Update a existing zone with the content of a local zone file.
 
-=item option delete
+=item zone delete [--software <software>] <zone name>
 
-=item rr create
+Delete the specified zone.
 
-=item rr read
+=item option create [--software <software>] <zone name> <option name> <option values ... >
 
-=item rr update
+Create a new zone option in the an existing zone.
 
-=item rr delete
+=item option read [--software <software>] <zone name> [option name]
+
+Read and display the specified option, or all if not given, from the zone.
+
+=item option update [--software <software>] <zone name> <option name> <option values ... >
+
+Update an existing option in a zone.
+
+=item option delete [--software <software>] <zone name> <option name>
+
+Delete the specified option from a zone.
+
+=item rr create [--software <software>] [--ttl <ttl>] [--class <class>] <zone name> <rr name> <rr type> <rr data ... >
+
+Create a new resource record in an existing zone.
+
+=item rr read [--software <software>] <zone name> [rr name]
+
+Read and display the specified resource record, or all if not given, from the zone.
+
+=item rr update [--software <software>] [--ttl <ttl>] [--class <class>] <zone name> <rr name> <rr type> <rr data ... >
+
+Update an existing resource record in a zone.
+
+=item rr delete [--software <software>] <zone name> <rr name>
+
+Delete the specified resource record from a zone.
 
 =back
 

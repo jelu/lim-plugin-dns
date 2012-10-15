@@ -798,7 +798,7 @@ Please see L<Lim::Plugin::DNS> for full documentation of calls.
 
 =item $server->ReadZones(...)
 
-Get a list of all zones that can be managed by the plugins.
+Get a list of all zones that can be managed by the plugin.
 
 =cut
 

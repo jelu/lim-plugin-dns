@@ -50,7 +50,7 @@ sub Module {
     'DNS';
 }
 
-=item $call_hash_ref = Lim::Plugin::MyPlugin->Calls
+=item $call_hash_ref = Lim::Plugin::DNS->Calls
 
 Returns a hash reference to the calls that can be made to this plugin, used both
 in Server and Client to verify input and output arguments.
@@ -364,7 +364,7 @@ used.
 
 =item $client->ReadZones(sub { my ($call, $response) = @_; })
 
-Get a list of all zones that can be managed by the plugins.
+Get a list of all zones that can be managed by the plugin.
 
   $response = {
     zone => # (optional) Single hash or an array of hashes as below:

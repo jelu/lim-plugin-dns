@@ -22,14 +22,10 @@ our $VERSION = $Lim::Plugin::DNS::VERSION;
 
 =head1 SYNOPSIS
 
-=over 4
+  use Lim::Plugin::DNS;
 
-use Lim::Plugin::DNS;
-
-# Create a Client object
-$client = Lim::Plugin::DNS->Client;
-
-=back
+  # Create a Client object
+  $client = Lim::Plugin::DNS->Client;
 
 =head1 METHODS
 

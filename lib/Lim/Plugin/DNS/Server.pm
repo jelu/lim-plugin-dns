@@ -124,18 +124,14 @@ BEGIN {
 
 =head1 SYNOPSIS
 
-=over 4
+  use Lim::Plugin::DNS;
 
-use Lim::Plugin::DNS;
-
-# Create a Server object
-$server = Lim::Plugin::DNS->Server;
-
-=back
+  # Create a Server object
+  $server = Lim::Plugin::DNS->Server;
 
 =head1 CONFIGURATION
 
-=head2 function1
+TODO
 
 =cut
 
@@ -199,23 +195,23 @@ our %ZoneFilePath = (
     #
 );
 
-=head1 SUBROUTINES/METHODS
+=head1 INTERNAL METHODS
 
-=head2 function1
+These are only internal methods and should not be used externally.
 
-=cut
+=over 4
 
-sub Init {
-}
+=item $server->_ScanZoneFile
 
-=head2 function1
+Scan for zone files based on configuration and returns a hash reference.
 
-=cut
-
-sub Destroy {
-}
-
-=head2 function1
+  $hash_ref->{<software>}->{<full path file name>} = {
+      name => <full path file name>,
+      software => <the software related to the zone file>,
+      short => <file name>,
+      write => <true if writable>,
+      read => <true if readable>
+  };
 
 =cut
 
@@ -277,7 +273,45 @@ sub _ScanZoneFile {
     return \%file;
 }
 
-=head2 function1
+=item $server->_ParseZoneFile($file, $option, $rr)
+
+Parse a zone file and returns the content into C<$option> and/or C<$rr>. C<$option> and
+C<$rr> can be a hash or array reference.
+
+  # $option as an array reference
+  $option = [
+      {
+          name => <option name>,
+          value => <option value>
+      },
+      ...
+  ];
+  
+  # $option as a hash reference
+  $option->{<option name>} = <option value>;
+  
+  # $rr as an array reference
+  $rr = [
+      {
+          name => <rr name>,
+          ttl => <rr ttl>,
+          class => <rr class>,
+          type => <rr type>,
+          rdata => <rr rdata>
+      },
+      ...
+  ];
+  
+  # $rr as a hash reference
+  $rr->{<rr name>} = [
+      {
+          ttl => <rr ttl>,
+          class => <rr class>,
+          type => <rr type>,
+          rdata => <rr rdata>
+      },
+      ...
+  ];
 
 =cut
 
@@ -419,7 +453,45 @@ sub _ParseZoneFile {
     return 1;
 }
 
-=head2 function1
+=item $server->_ParseZoneContent($content, $option, $rr)
+
+Parse a zone content from a string and returns the content into C<$option> and/or
+C<$rr>. C<$option> and C<$rr> can be a hash or array reference.
+
+  # $option as an array reference
+  $option = [
+      {
+          name => <option name>,
+          value => <option value>
+      },
+      ...
+  ];
+  
+  # $option as a hash reference
+  $option->{<option name>} = <option value>;
+  
+  # $rr as an array reference
+  $rr = [
+      {
+          name => <rr name>,
+          ttl => <rr ttl>,
+          class => <rr class>,
+          type => <rr type>,
+          rdata => <rr rdata>
+      },
+      ...
+  ];
+  
+  # $rr as a hash reference
+  $rr->{<rr name>} = [
+      {
+          ttl => <rr ttl>,
+          class => <rr class>,
+          type => <rr type>,
+          rdata => <rr rdata>
+      },
+      ...
+  ];
 
 =cut
 
@@ -623,7 +695,13 @@ sub _ParseZoneContent {
     return 1;
 }
 
-=head2 function1
+=item $server->_WriteZoneFile($file, $rr, $option)
+
+Write the content of C<$rr> and C<$option> out to a zone file. A temporary file is
+used and then renamed to the specified C<$file> once the writing is complete.
+
+The C<$rr> and C<$option> needs to be in the format specified by L<_ParseZoneFile> and
+L<_ParseZoneContent>.
 
 =cut
 
@@ -707,7 +785,20 @@ sub _WriteZoneFile {
     return;
 }
 
-=head2 function1
+=back
+
+=head1 METHODS
+
+These methods are called from the Lim framework and should not be used else
+where.
+
+Please see L<Lim::Plugin::DNS> for full documentation of calls.
+
+=over 4
+
+=item $server->ReadZones(...)
+
+Get a list of all zones that can be managed by the plugins.
 
 =cut
 
@@ -738,7 +829,9 @@ sub ReadZones {
     }
 }
 
-=head2 function1
+=item $server->CreateZone(...)
+
+Create a new zone file.
 
 =cut
 
@@ -884,7 +977,9 @@ sub CreateZone {
     $self->Successful($cb);
 }
 
-=head2 function1
+=item $server->ReadZone(...)
+
+Returns a zone file as a content or split into option and rr.
 
 =cut
 
@@ -989,7 +1084,9 @@ sub ReadZone {
     }
 }
 
-=head2 function1
+=item $server->UpdateZone(...)
+
+Update a zone file, this overwrites all zone data.
 
 =cut
 
@@ -1103,7 +1200,9 @@ sub UpdateZone {
     $self->Successful($cb);
 }
 
-=head2 function1
+=item $server->DeleteZone(...)
+
+Delete a zone file.
 
 =cut
 
@@ -1161,7 +1260,9 @@ sub DeleteZone {
     $self->Successful($cb);
 }
 
-=head2 function1
+=item $server->CreateZoneOption(...)
+
+Create a new zone option.
 
 =cut
 
@@ -1246,7 +1347,9 @@ sub CreateZoneOption {
     $self->Successful($cb);
 }
 
-=head2 function1
+=item $server->ReadZoneOption(...)
+
+Return zone options specified or all zone options for a zone file.
 
 =cut
 
@@ -1359,7 +1462,9 @@ sub ReadZoneOption {
     }
 }
 
-=head2 function1
+=item $server->UpdateZoneOption(...)
+
+Update a zone option, this does not overwrite other zone options.
 
 =cut
 
@@ -1454,7 +1559,9 @@ sub UpdateZoneOption {
     $self->Successful($cb);
 }
 
-=head2 function1
+=item $server->DeleteZoneOption(...)
+
+Delete a zone options.
 
 =cut
 
@@ -1543,7 +1650,9 @@ sub DeleteZoneOption {
     $self->Successful($cb);
 }
 
-=head2 function1
+=item $server->CreateZoneRr(...)
+
+Create a new zone resource record.
 
 =cut
 
@@ -1648,7 +1757,10 @@ sub CreateZoneRr {
     $self->Successful($cb);
 }
 
-=head2 function1
+=item $server->ReadZoneRr(...)
+
+Return zone resource records specified or all zone resource records for a zone
+file.
 
 =cut
 
@@ -1761,7 +1873,9 @@ sub ReadZoneRr {
     }
 }
 
-=head2 function1
+=item $server->UpdateZoneRr(...)
+
+Update a zone resource record, this does not remove other zone resource records.
 
 =cut
 
@@ -1872,7 +1986,9 @@ sub UpdateZoneRr {
     $self->Successful($cb);
 }
 
-=head2 function1
+=item $server->DeleteZoneRr(...)
+
+Delete a zone resource records.
 
 =cut
 
@@ -1961,6 +2077,8 @@ sub DeleteZoneRr {
     }
     $self->Successful($cb);
 }
+
+=back
 
 =head1 AUTHOR
 

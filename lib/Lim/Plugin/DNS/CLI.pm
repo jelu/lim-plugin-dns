@@ -25,14 +25,17 @@ our $VERSION = $Lim::Plugin::DNS::VERSION;
 
 =head1 SYNOPSIS
 
-You should not use this directly, please see L<Lim::Plugin::DNS> on how to use.
-
   use Lim::Plugin::DNS;
   
   # Create a CLI object
   $cli = Lim::Plugin::DNS->CLI;
 
 =head1 METHODS
+
+These methods are called from the Lim framework and should not be used else
+where.
+
+Please see L<Lim::Plugin::DNS> for full documentation of calls.
 
 =over 4
 

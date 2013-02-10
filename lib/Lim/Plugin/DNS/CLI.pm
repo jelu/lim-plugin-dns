@@ -47,14 +47,14 @@ List existing zones and related software.
 
 sub zones {
     my ($self) = @_;
-    my $opendnssec = Lim::Plugin::DNS->Client;
+    my $dns = Lim::Plugin::DNS->Client;
     
     weaken($self);
-    $opendnssec->ReadZones(sub {
+    $dns->ReadZones(sub {
         my ($call, $response) = @_;
         
         unless (defined $self) {
-            undef($opendnssec);
+            undef($dns);
             return;
         }
         
@@ -75,7 +75,7 @@ sub zones {
         else {
             $self->Error($call->Error);
         }
-        undef($opendnssec);
+        undef($dns);
     });
 }
 
@@ -121,9 +121,9 @@ sub zone {
             }
         }
         
-        my $opendnssec = Lim::Plugin::DNS->Client;
+        my $dns = Lim::Plugin::DNS->Client;
         weaken($self);
-        $opendnssec->CreateZone({
+        $dns->CreateZone({
             zone => {
                 file => $zone,
                 (defined $software ? (software => $software) : ()),
@@ -133,7 +133,7 @@ sub zone {
             my ($call, $response) = @_;
             
             unless (defined $self) {
-                undef($opendnssec);
+                undef($dns);
                 return;
             }
             
@@ -144,7 +144,7 @@ sub zone {
             else {
                 $self->Error($call->Error);
             }
-            undef($opendnssec);
+            undef($dns);
         });
         return;
     }
@@ -164,15 +164,15 @@ sub zone {
             });
         }
         
-        my $opendnssec = Lim::Plugin::DNS->Client;
+        my $dns = Lim::Plugin::DNS->Client;
         weaken($self);
-        $opendnssec->ReadZone({
+        $dns->ReadZone({
             zone => \@zones
         }, sub {
             my ($call, $response) = @_;
             
             unless (defined $self) {
-                undef($opendnssec);
+                undef($dns);
                 return;
             }
             
@@ -211,7 +211,7 @@ sub zone {
             else {
                 $self->Error($call->Error);
             }
-            undef($opendnssec);
+            undef($dns);
         });
         return;
     }
@@ -224,9 +224,9 @@ sub zone {
             return;
         }
         
-        my $opendnssec = Lim::Plugin::DNS->Client;
+        my $dns = Lim::Plugin::DNS->Client;
         weaken($self);
-        $opendnssec->UpdateZone({
+        $dns->UpdateZone({
             zone => {
                 file => $zone,
                 (defined $software ? (software => $software) : ()),
@@ -236,7 +236,7 @@ sub zone {
             my ($call, $response) = @_;
             
             unless (defined $self) {
-                undef($opendnssec);
+                undef($dns);
                 return;
             }
             
@@ -247,7 +247,7 @@ sub zone {
             else {
                 $self->Error($call->Error);
             }
-            undef($opendnssec);
+            undef($dns);
         });
         return;
     }
@@ -256,9 +256,9 @@ sub zone {
         
         # Ask user
         
-        my $opendnssec = Lim::Plugin::DNS->Client;
+        my $dns = Lim::Plugin::DNS->Client;
         weaken($self);
-        $opendnssec->DeleteZone({
+        $dns->DeleteZone({
             zone => {
                 file => $zone,
                 (defined $software ? (software => $software) : ())
@@ -267,7 +267,7 @@ sub zone {
             my ($call, $response) = @_;
             
             unless (defined $self) {
-                undef($opendnssec);
+                undef($dns);
                 return;
             }
             
@@ -278,7 +278,7 @@ sub zone {
             else {
                 $self->Error($call->Error);
             }
-            undef($opendnssec);
+            undef($dns);
         });
         return;
     }
@@ -319,9 +319,9 @@ sub option {
         my (undef, $zone, $name, @value) = @$args;
         my $value = join(' ', @value);
 
-        my $opendnssec = Lim::Plugin::DNS->Client;
+        my $dns = Lim::Plugin::DNS->Client;
         weaken($self);
-        $opendnssec->CreateZoneOption({
+        $dns->CreateZoneOption({
             zone => {
                 file => $zone,
                 (defined $software ? (software => $software) : ()),
@@ -334,7 +334,7 @@ sub option {
             my ($call, $response) = @_;
             
             unless (defined $self) {
-                undef($opendnssec);
+                undef($dns);
                 return;
             }
             
@@ -345,16 +345,16 @@ sub option {
             else {
                 $self->Error($call->Error);
             }
-            undef($opendnssec);
+            undef($dns);
         });
         return;
     }
     elsif ($args->[0] eq 'read' and scalar @$args >= 2) {
         my (undef, $zone, $name) = @$args;
 
-        my $opendnssec = Lim::Plugin::DNS->Client;
+        my $dns = Lim::Plugin::DNS->Client;
         weaken($self);
-        $opendnssec->ReadZoneOption({
+        $dns->ReadZoneOption({
             zone => {
                 file => $zone,
                 (defined $software ? (software => $software) : ()),
@@ -364,7 +364,7 @@ sub option {
             my ($call, $response) = @_;
             
             unless (defined $self) {
-                undef($opendnssec);
+                undef($dns);
                 return;
             }
             
@@ -387,7 +387,7 @@ sub option {
             else {
                 $self->Error($call->Error);
             }
-            undef($opendnssec);
+            undef($dns);
         });
         return;
     }
@@ -395,9 +395,9 @@ sub option {
         my (undef, $zone, $name, @value) = @$args;
         my $value = join(' ', @value);
 
-        my $opendnssec = Lim::Plugin::DNS->Client;
+        my $dns = Lim::Plugin::DNS->Client;
         weaken($self);
-        $opendnssec->UpdateZoneOption({
+        $dns->UpdateZoneOption({
             zone => {
                 file => $zone,
                 (defined $software ? (software => $software) : ()),
@@ -410,7 +410,7 @@ sub option {
             my ($call, $response) = @_;
             
             unless (defined $self) {
-                undef($opendnssec);
+                undef($dns);
                 return;
             }
             
@@ -421,16 +421,16 @@ sub option {
             else {
                 $self->Error($call->Error);
             }
-            undef($opendnssec);
+            undef($dns);
         });
         return;
     }
     elsif ($args->[0] eq 'delete' and scalar @$args == 3) {
         my (undef, $zone, $name) = @$args;
 
-        my $opendnssec = Lim::Plugin::DNS->Client;
+        my $dns = Lim::Plugin::DNS->Client;
         weaken($self);
-        $opendnssec->DeleteZoneOption({
+        $dns->DeleteZoneOption({
             zone => {
                 file => $zone,
                 (defined $software ? (software => $software) : ()),
@@ -442,7 +442,7 @@ sub option {
             my ($call, $response) = @_;
             
             unless (defined $self) {
-                undef($opendnssec);
+                undef($dns);
                 return;
             }
             
@@ -453,7 +453,7 @@ sub option {
             else {
                 $self->Error($call->Error);
             }
-            undef($opendnssec);
+            undef($dns);
         });
         return;
     }
@@ -498,9 +498,9 @@ sub rr {
         my (undef, $zone, $name, $type, @rdata) = @$args;
         my $rdata = join(' ', @rdata);
 
-        my $opendnssec = Lim::Plugin::DNS->Client;
+        my $dns = Lim::Plugin::DNS->Client;
         weaken($self);
-        $opendnssec->CreateZoneRr({
+        $dns->CreateZoneRr({
             zone => {
                 file => $zone,
                 (defined $software ? (software => $software) : ()),
@@ -516,7 +516,7 @@ sub rr {
             my ($call, $response) = @_;
             
             unless (defined $self) {
-                undef($opendnssec);
+                undef($dns);
                 return;
             }
             
@@ -527,16 +527,16 @@ sub rr {
             else {
                 $self->Error($call->Error);
             }
-            undef($opendnssec);
+            undef($dns);
         });
         return;
     }
     elsif ($args->[0] eq 'read' and scalar @$args >= 2) {
         my (undef, $zone, $name) = @$args;
 
-        my $opendnssec = Lim::Plugin::DNS->Client;
+        my $dns = Lim::Plugin::DNS->Client;
         weaken($self);
-        $opendnssec->ReadZoneRr({
+        $dns->ReadZoneRr({
             zone => {
                 file => $zone,
                 (defined $software ? (software => $software) : ()),
@@ -546,7 +546,7 @@ sub rr {
             my ($call, $response) = @_;
             
             unless (defined $self) {
-                undef($opendnssec);
+                undef($dns);
                 return;
             }
             
@@ -572,7 +572,7 @@ sub rr {
             else {
                 $self->Error($call->Error);
             }
-            undef($opendnssec);
+            undef($dns);
         });
         return;
     }
@@ -580,9 +580,9 @@ sub rr {
         my (undef, $zone, $name, $type, @rdata) = @$args;
         my $rdata = join(' ', @rdata);
 
-        my $opendnssec = Lim::Plugin::DNS->Client;
+        my $dns = Lim::Plugin::DNS->Client;
         weaken($self);
-        $opendnssec->UpdateZoneRr({
+        $dns->UpdateZoneRr({
             zone => {
                 file => $zone,
                 (defined $software ? (software => $software) : ()),
@@ -598,7 +598,7 @@ sub rr {
             my ($call, $response) = @_;
             
             unless (defined $self) {
-                undef($opendnssec);
+                undef($dns);
                 return;
             }
             
@@ -609,16 +609,16 @@ sub rr {
             else {
                 $self->Error($call->Error);
             }
-            undef($opendnssec);
+            undef($dns);
         });
         return;
     }
     elsif ($args->[0] eq 'delete' and scalar @$args == 3) {
         my (undef, $zone, $name) = @$args;
 
-        my $opendnssec = Lim::Plugin::DNS->Client;
+        my $dns = Lim::Plugin::DNS->Client;
         weaken($self);
-        $opendnssec->DeleteZoneRr({
+        $dns->DeleteZoneRr({
             zone => {
                 file => $zone,
                 (defined $software ? (software => $software) : ()),
@@ -630,7 +630,7 @@ sub rr {
             my ($call, $response) = @_;
             
             unless (defined $self) {
-                undef($opendnssec);
+                undef($dns);
                 return;
             }
             
@@ -641,7 +641,7 @@ sub rr {
             else {
                 $self->Error($call->Error);
             }
-            undef($opendnssec);
+            undef($dns);
         });
         return;
     }

@@ -31,7 +31,7 @@ Depends: ${misc:Depends}, ${perl:Depends},
 Description: Client perl libraries for DNS Manager Lim plugin
  Client perl libraries for communicating with the DNS Manager Lim plugin.
 
-Package: liblim-plugin-opendnssec-cli-perl
+Package: liblim-plugin-dns-cli-perl
 Architecture: all
 Depends: ${misc:Depends}, ${perl:Depends}, liblim-cli-perl (= 0.12-1~unstable+1),
  liblim-plugin-dns-client-perl (= 0.10-1~unstable+1)

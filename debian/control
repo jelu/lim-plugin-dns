@@ -38,3 +38,9 @@ Depends: ${misc:Depends}, ${perl:Depends}, liblim-cli-perl (= 0.12-1~unstable+1)
 Description: CLI perl libraries for DNS Manager Lim plugin
  CLI perl libraries for managing generic DNS related information via DNS Manager
  Lim plugin.
+
+Package: lim-management-console-dns
+Architecture: all
+Depends: ${misc:Depends}, lim-management-console-common (= 0.12-1~unstable+1)
+Description: DNS Manager Lim plugin Management Console files
+ DNS Manager Lim plugin Management Console files.

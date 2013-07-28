@@ -117,9 +117,6 @@
 				window.lim.loadPage('/_dns/about.html')
 				.done(function (data) {
 					$('#dns-content').html(data);
-				})
-				.fail(function () {
-					$('#content').text('Something went very wrong ...');
 				});
 			},
 			//
@@ -133,12 +130,49 @@
 				.done(function (data) {
 					$('#dns-content').html(data);
 					that.getZoneList();
-				})
-				.fail(function () {
-					$('#content').text('Something went very wrong ...');
 				});
 			},
 			getZoneList: function () {
+				window.lim.getJSON('/dns/zones')
+				.done(function (data) {
+		    		if (data.zone && data.zone.length) {
+		    			$('#dns-content table tbody').empty();
+		    			
+			    		data.zone.sort(function (a, b) {
+			    			return (a.file > b.file) ? 1 : ((a.file > b.file) ? -1 : 0);
+			    		});
+
+			    		$.each(data.zone, function () {
+			    			$('#dns-content table tbody').append(
+			    				'<tr>'+
+			    				'<td>'+this.file+'</td>'+
+			    				'<td>'+this.software+'</td>'+
+			    				'<td>'+(this.read ? 'Yes' : 'No')+'</td>'+
+			    				'<td>'+(this.write ? 'Yes' : 'No')+'</td>'+
+			    				'</tr>'
+			    				);
+			    		});
+			    		return;
+		    		}
+		    		else if (data.zone.file) {
+		    			$('#dns-content table tbody')
+		    			.empty()
+		    			.append(
+		    				'<tr>'+
+		    				'<td>'+data.zone.file+'</td>'+
+		    				'<td>'+data.zone.software+'</td>'+
+		    				'<td>'+(data.zone.read ? 'Yes' : 'No')+'</td>'+
+		    				'<td>'+(data.zone.write ? 'Yes' : 'No')+'</td>'+
+		    				'</tr>'
+		    				);
+		    			return;
+		    		}
+		    		
+		    		$('#dns-content table td i').text('No zone files found');
+				})
+				.fail(function () {
+					$('#dns-content table td i').text('failed');
+				});
 			},
 			//
 			loadZoneCreate: function () {
@@ -148,9 +182,6 @@
 				.done(function (data) {
 					$('#dns-content').html(data);
 					that.getZoneCreate();
-				})
-				.fail(function () {
-					$('#content').text('Something went very wrong ...');
 				});
 			},
 			getZoneCreate: function () {
@@ -163,9 +194,6 @@
 				.done(function (data) {
 					$('#dns-content').html(data);
 					that.getZoneRead();
-				})
-				.fail(function () {
-					$('#content').text('Something went very wrong ...');
 				});
 			},
 			getZoneRead: function () {
@@ -178,9 +206,6 @@
 				.done(function (data) {
 					$('#dns-content').html(data);
 					that.getZoneUpdate();
-				})
-				.fail(function () {
-					$('#content').text('Something went very wrong ...');
 				});
 			},
 			getZoneUpdate: function () {
@@ -193,9 +218,6 @@
 				.done(function (data) {
 					$('#dns-content').html(data);
 					that.getZoneDelete();
-				})
-				.fail(function () {
-					$('#content').text('Something went very wrong ...');
 				});
 			},
 			getZoneDelete: function () {
@@ -211,9 +233,6 @@
 				.done(function (data) {
 					$('#dns-content').html(data);
 					that.getOptionList();
-				})
-				.fail(function () {
-					$('#content').text('Something went very wrong ...');
 				});
 			},
 			getOptionList: function () {
@@ -226,9 +245,6 @@
 				.done(function (data) {
 					$('#dns-content').html(data);
 					that.getOptionCreate();
-				})
-				.fail(function () {
-					$('#content').text('Something went very wrong ...');
 				});
 			},
 			getOptionCreate: function () {
@@ -241,9 +257,6 @@
 				.done(function (data) {
 					$('#dns-content').html(data);
 					that.getOptionRead();
-				})
-				.fail(function () {
-					$('#content').text('Something went very wrong ...');
 				});
 			},
 			getOptionRead: function () {
@@ -256,9 +269,6 @@
 				.done(function (data) {
 					$('#dns-content').html(data);
 					that.getOptionUpdate();
-				})
-				.fail(function () {
-					$('#content').text('Something went very wrong ...');
 				});
 			},
 			getOptionUpdate: function () {
@@ -271,9 +281,6 @@
 				.done(function (data) {
 					$('#dns-content').html(data);
 					that.getOptionDelete();
-				})
-				.fail(function () {
-					$('#content').text('Something went very wrong ...');
 				});
 			},
 			getOptionDelete: function () {
@@ -289,9 +296,6 @@
 				.done(function (data) {
 					$('#dns-content').html(data);
 					that.getRRList();
-				})
-				.fail(function () {
-					$('#content').text('Something went very wrong ...');
 				});
 			},
 			getRRList: function () {
@@ -304,9 +308,6 @@
 				.done(function (data) {
 					$('#dns-content').html(data);
 					that.getRRCreate();
-				})
-				.fail(function () {
-					$('#content').text('Something went very wrong ...');
 				});
 			},
 			getRRCreate: function () {
@@ -319,9 +320,6 @@
 				.done(function (data) {
 					$('#dns-content').html(data);
 					that.getRRRead();
-				})
-				.fail(function () {
-					$('#content').text('Something went very wrong ...');
 				});
 			},
 			getRRRead: function () {
@@ -334,9 +332,6 @@
 				.done(function (data) {
 					$('#dns-content').html(data);
 					that.getRRUpdate();
-				})
-				.fail(function () {
-					$('#content').text('Something went very wrong ...');
 				});
 			},
 			getRRUpdate: function () {
@@ -349,9 +344,6 @@
 				.done(function (data) {
 					$('#dns-content').html(data);
 					that.getRRDelete();
-				})
-				.fail(function () {
-					$('#content').text('Something went very wrong ...');
 				});
 			},
 			getRRDelete: function () {

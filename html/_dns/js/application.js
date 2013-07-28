@@ -181,7 +181,43 @@
 				window.lim.loadPage('/_dns/zone_create.html')
 				.done(function (data) {
 					$('#dns-content').html(data);
-					that.getZoneCreate();
+					$('#dns-content form').submit(function () {
+						var file = $('#dns-content #file').val();
+						
+						$('#dns-content form').remove();
+						$('#dns-content')
+						.append($('<p></p>')
+							.append($('<i></i>')
+								.text('Creating zone file '+file+', please wait ...')
+								));
+
+						window.lim.putJSON('/dns/zone', {
+							zone: {
+								file: file
+							}
+						})
+						.done(function (data) {
+							$('#dns-content p')
+							.text('Successfully created zone file '+file+'.')
+							.addClass('text-success');
+						})
+						.fail(function (jqXHR) {
+							var message;
+							try {
+								message = $.parseJSON(jqXHR.responseText)['Lim::Error'].message+'!';
+							}
+							catch (dummy) {
+							}
+							if (!message) {
+								message = 'Reason unknown, please check your system logs!';
+							}
+							$('#dns-content p')
+							.text('Unable to created zone file '+file+': '+message)
+							.addClass('text-error');
+						});
+
+						return false;
+					})
 				});
 			},
 			getZoneCreate: function () {

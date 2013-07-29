@@ -1,1 +1,26 @@
-<h2>Not implemented</h2>
+<h2>Delete Zone File</h2>
+<form>
+  <fieldset>
+    <legend>Select a zone file to delete</legend>
+    <label>Zone File</label>
+      <select id="file" class="selectpicker show-menu-arrow span9" required>
+        <option>Loading...</option>
+      </select>
+      <span class="help-block">Click on the input field to get a list of zone files to select from.</span>
+    </label>
+    <a href="#deleteZoneFile" role="button" class="btn btn-danger" data-toggle="modal">Delete Zone File</a>
+  </fieldset>
+</form>
+<div id="deleteZoneFile" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="deleteZoneFileLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="deleteZoneFileLabel">Confirm Zone File Delete</h3>
+  </div>
+  <div class="modal-body">
+    <p>Are you sure you want to delete the zone file <span id="zoneFile"></span>?</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+    <button class="btn btn-primary btn-danger">Delete</button>
+  </div>
+</div>

@@ -120,6 +120,44 @@
 				});
 			},
 			//
+			_getZoneListSelect: function () {
+				window.lim.getJSON('/dns/zones')
+				.done(function (data) {
+		    		if (data.zone && data.zone.length) {
+		    			$('#dns-content select').empty();
+		    			
+			    		data.zone.sort(function (a, b) {
+			    			return (a.file > b.file) ? 1 : ((a.file > b.file) ? -1 : 0);
+			    		});
+
+			    		$.each(data.zone, function () {
+			    			$('#dns-content select').append(
+			    				$('<option></option>').text(this.file)
+			    				);
+			    		});
+			    		$('#dns-content select').prop('disabled',false);
+			    		$('#dns-content .selectpicker').selectpicker('refresh');
+			    		$('#dns-content #submit').prop('disabled',false);
+			    		return;
+		    		}
+		    		else if (data.zone && data.zone.file) {
+		    			$('#dns-content select')
+		    			.empty()
+		    			.append($('<option></option>').text(data.zone.file));
+
+			    		$('#dns-content select').prop('disabled',false);
+			    		$('#dns-content .selectpicker').selectpicker('refresh');
+			    		$('#dns-content #submit').prop('disabled',false);
+		    			return;
+		    		}
+		    		
+		    		$('#dns-content option').text('No zone files found');
+				})
+				.fail(function () {
+					$('#dns-content option').text('failed');
+				});
+			},
+			//
 			// ZONE
 			//
 			//
@@ -264,41 +302,7 @@
 				});
 			},
 			getZoneRead: function () {
-				window.lim.getJSON('/dns/zones')
-				.done(function (data) {
-		    		if (data.zone && data.zone.length) {
-		    			$('#dns-content select').empty();
-		    			
-			    		data.zone.sort(function (a, b) {
-			    			return (a.file > b.file) ? 1 : ((a.file > b.file) ? -1 : 0);
-			    		});
-
-			    		$.each(data.zone, function () {
-			    			$('#dns-content select').append(
-			    				$('<option></option>').text(this.file)
-			    				);
-			    		});
-			    		$('#dns-content select').prop('disabled',false);
-			    		$('#dns-content .selectpicker').selectpicker('refresh');
-			    		$('#dns-content #submit').prop('disabled',false);
-			    		return;
-		    		}
-		    		else if (data.zone && data.zone.file) {
-		    			$('#dns-content select')
-		    			.empty()
-		    			.append($('<option></option>').text(data.zone.file));
-
-			    		$('#dns-content select').prop('disabled',false);
-			    		$('#dns-content .selectpicker').selectpicker('refresh');
-			    		$('#dns-content #submit').prop('disabled',false);
-		    			return;
-		    		}
-		    		
-		    		$('#dns-content option').text('No zone files found');
-				})
-				.fail(function () {
-					$('#dns-content option').text('failed');
-				});
+				this._getZoneListSelect();
 			},
 			//
 			loadZoneUpdate: function () {
@@ -379,41 +383,7 @@
 				});
 			},
 			getZoneUpdate: function () {
-				window.lim.getJSON('/dns/zones')
-				.done(function (data) {
-		    		if (data.zone && data.zone.length) {
-		    			$('#dns-content select').empty();
-		    			
-			    		data.zone.sort(function (a, b) {
-			    			return (a.file > b.file) ? 1 : ((a.file > b.file) ? -1 : 0);
-			    		});
-
-			    		$.each(data.zone, function () {
-			    			$('#dns-content select').append(
-			    				$('<option></option>').text(this.file)
-			    				);
-			    		});
-			    		$('#dns-content select').prop('disabled',false);
-			    		$('#dns-content .selectpicker').selectpicker('refresh');
-			    		$('#dns-content #submit').prop('disabled',false);
-			    		return;
-		    		}
-		    		else if (data.zone && data.zone.file) {
-		    			$('#dns-content select')
-		    			.empty()
-		    			.append($('<option></option>').text(data.zone.file));
-
-			    		$('#dns-content select').prop('disabled',false);
-			    		$('#dns-content .selectpicker').selectpicker('refresh');
-			    		$('#dns-content #submit').prop('disabled',false);
-		    			return;
-		    		}
-		    		
-		    		$('#dns-content option').text('No zone files found');
-				})
-				.fail(function () {
-					$('#dns-content option').text('failed');
-				});
+				this._getZoneListSelect();
 			},
 			//
 			loadZoneDelete: function () {
@@ -426,9 +396,11 @@
 					$('#dns-content').html(data);
 		    		$('#dns-content select').prop('disabled',true);
 		    		$('#dns-content .selectpicker').selectpicker();
-		    		$('#dns-content form a').click(function () {
+		    		$('#dns-content form').submit(function () {
 	    				file = $('#dns-content select option:selected').text();
 	    				$('#dns-content #zoneFile').text(file);
+	    				$('#deleteZoneFile').modal('show')
+	    				return false;
 		    		});
 		    		$('#deleteZoneFile button.btn-primary').click(function () {
 	    				$('#dns-content form').remove();
@@ -459,41 +431,7 @@
 				});
 			},
 			getZoneDelete: function () {
-				window.lim.getJSON('/dns/zones')
-				.done(function (data) {
-		    		if (data.zone && data.zone.length) {
-		    			$('#dns-content select').empty();
-		    			
-			    		data.zone.sort(function (a, b) {
-			    			return (a.file > b.file) ? 1 : ((a.file > b.file) ? -1 : 0);
-			    		});
-
-			    		$.each(data.zone, function () {
-			    			$('#dns-content select').append(
-			    				$('<option></option>').text(this.file)
-			    				);
-			    		});
-			    		$('#dns-content select').prop('disabled',false);
-			    		$('#dns-content .selectpicker').selectpicker('refresh');
-			    		$('#dns-content #submit').prop('disabled',false);
-			    		return;
-		    		}
-		    		else if (data.zone && data.zone.file) {
-		    			$('#dns-content select')
-		    			.empty()
-		    			.append($('<option></option>').text(data.zone.file));
-
-			    		$('#dns-content select').prop('disabled',false);
-			    		$('#dns-content .selectpicker').selectpicker('refresh');
-			    		$('#dns-content #submit').prop('disabled',false);
-		    			return;
-		    		}
-		    		
-		    		$('#dns-content option').text('No zone files found');
-				})
-				.fail(function () {
-					$('#dns-content option').text('failed');
-				});
+				this._getZoneListSelect();
 			},
 			//
 			// OPTION
@@ -505,10 +443,18 @@
 				window.lim.loadPage('/_dns/opt_list.html')
 				.done(function (data) {
 					$('#dns-content').html(data);
+		    		$('#dns-content select').prop('disabled',true);
+		    		$('#dns-content .selectpicker').selectpicker();
+		    		$('#dns-content form').submit(function () {
+		    			var file = $('#dns-content select option:selected').text();
+	    				return false;
+		    		});
+		    		$('#dns-content #submit').prop('disabled',true);
 					that.getOptionList();
 				});
 			},
 			getOptionList: function () {
+				this._getZoneListSelect();
 			},
 			//
 			loadOptionCreate: function () {
@@ -517,10 +463,18 @@
 				window.lim.loadPage('/_dns/opt_create.html')
 				.done(function (data) {
 					$('#dns-content').html(data);
+		    		$('#dns-content select').prop('disabled',true);
+		    		$('#dns-content .selectpicker').selectpicker();
+		    		$('#dns-content form').submit(function () {
+		    			var file = $('#dns-content select option:selected').text();
+	    				return false;
+		    		});
+		    		$('#dns-content #submit').prop('disabled',true);
 					that.getOptionCreate();
 				});
 			},
 			getOptionCreate: function () {
+				this._getZoneListSelect();
 			},
 			//
 			loadOptionRead: function () {
@@ -529,10 +483,18 @@
 				window.lim.loadPage('/_dns/opt_read.html')
 				.done(function (data) {
 					$('#dns-content').html(data);
+		    		$('#dns-content select').prop('disabled',true);
+		    		$('#dns-content .selectpicker').selectpicker();
+		    		$('#dns-content form').submit(function () {
+		    			var file = $('#dns-content select option:selected').text();
+	    				return false;
+		    		});
+		    		$('#dns-content #submit').prop('disabled',true);
 					that.getOptionRead();
 				});
 			},
 			getOptionRead: function () {
+				this._getZoneListSelect();
 			},
 			//
 			loadOptionUpdate: function () {
@@ -541,10 +503,18 @@
 				window.lim.loadPage('/_dns/opt_update.html')
 				.done(function (data) {
 					$('#dns-content').html(data);
+		    		$('#dns-content select').prop('disabled',true);
+		    		$('#dns-content .selectpicker').selectpicker();
+		    		$('#dns-content form').submit(function () {
+		    			var file = $('#dns-content select option:selected').text();
+	    				return false;
+		    		});
+		    		$('#dns-content #submit').prop('disabled',true);
 					that.getOptionUpdate();
 				});
 			},
 			getOptionUpdate: function () {
+				this._getZoneListSelect();
 			},
 			//
 			loadOptionDelete: function () {
@@ -553,10 +523,18 @@
 				window.lim.loadPage('/_dns/opt_delete.html')
 				.done(function (data) {
 					$('#dns-content').html(data);
+		    		$('#dns-content select').prop('disabled',true);
+		    		$('#dns-content .selectpicker').selectpicker();
+		    		$('#dns-content form').submit(function () {
+		    			var file = $('#dns-content select option:selected').text();
+	    				return false;
+		    		});
+		    		$('#dns-content #submit').prop('disabled',true);
 					that.getOptionDelete();
 				});
 			},
 			getOptionDelete: function () {
+				this._getZoneListSelect();
 			},
 			//
 			// RESOURCE RECORD

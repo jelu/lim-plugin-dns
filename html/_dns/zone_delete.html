@@ -3,12 +3,11 @@
   <fieldset>
     <legend>Select a zone file to delete</legend>
     <label>Zone File</label>
-      <select id="file" class="selectpicker show-menu-arrow span9" required>
-        <option>Loading...</option>
-      </select>
-      <span class="help-block">Click on the input field to get a list of zone files to select from.</span>
-    </label>
-    <a href="#deleteZoneFile" role="button" class="btn btn-danger" data-toggle="modal">Delete Zone File</a>
+    <select id="file" class="selectpicker show-menu-arrow span9" required>
+      <option>Loading...</option>
+    </select>
+    <span class="help-block">Click on the input field to get a list of zone files to select from.</span>
+    <button id="submit" type="submit" class="btn btn-danger">Delete Zone File</button>
   </fieldset>
 </form>
 <div id="deleteZoneFile" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="deleteZoneFileLabel" aria-hidden="true">

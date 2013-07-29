@@ -1,1 +1,15 @@
-<h2>Not implemented</h2>
+<h2>Delete Zone Option</h2>
+<form>
+  <fieldset>
+    <legend>Select a zone file from which to view an option</legend>
+    <label>Zone File</label>
+    <select id="file" class="selectpicker show-menu-arrow span9" required>
+      <option>Loading...</option>
+    </select>
+    <span class="help-block">Click on the input field to get a list of zone files to select from.</span>
+    <label>Option Name</label>
+    <input id="optionName" type="text" placeholder="Enter option name..." required />
+    <span class="help-block">The name of the option without the $ sign.</span>
+    <button id="submit" type="submit" class="btn btn-danger">Delete Zone Option</button>
+  </fieldset>
+</form>

@@ -50,6 +50,16 @@ sub Module {
     'DNS';
 }
 
+=item $module_name = Lim::Plugin::DNS->Description
+
+Returns module description.
+
+=cut
+
+sub Description {
+    'This plugin manage generic DNS related information like zone files via Lim. It does not manage DNS software specific information.';
+}
+
 =item $call_hash_ref = Lim::Plugin::DNS->Calls
 
 Returns a hash reference to the calls that can be made to this plugin, used both

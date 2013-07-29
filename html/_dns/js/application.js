@@ -238,7 +238,7 @@
 		    					}
 		    				})
 		    				.done(function (data) {
-		    					if (data.zone && !data.zone.length && data.zone.file && data.zone.content) {
+		    					if (data.zone && !data.zone.length && data.zone.file) {
 		    						$('#dns-content p').text('Content of zone file '+file);
 		    						$('#dns-content').append(
 		    							$('<pre class="prettyprint linenums"></pre>')
@@ -307,10 +307,113 @@
 				window.lim.loadPage('/_dns/zone_update.html')
 				.done(function (data) {
 					$('#dns-content').html(data);
+		    		$('#dns-content select').prop('disabled',true);
+		    		$('#dns-content .selectpicker').selectpicker();
+		    		$('#dns-content form').submit(function () {
+	    				var file = $('#dns-content select option:selected').text();
+		    			if (file) {
+		    				$('#dns-content form').remove();
+		    				$('#dns-content').append(
+		    					$('<p></p>').append(
+		    						$('<i></i>')
+		    						.text('Loading zone file '+file+' ...')
+	    						));
+		    				window.lim.getJSON('/dns/zone', {
+		    					zone: {
+		    						file: file,
+		    						as_content: true
+		    					}
+		    				})
+		    				.done(function (data) {
+		    					if (data.zone && !data.zone.length && data.zone.file) {
+		    						window.lim.loadPage('/_dns/zone_update_edit.html')
+		    						.done(function (data2) {
+		    							$('#dns-content').html(data2);
+		    							$('#dns-content legend').text('Edit zone file '+file);
+		    							$('#dns-content textarea').val(data.zone.content);
+		    							$('#dns-content form').submit(function () {
+		    								var content = $('#dns-content textarea').val();
+		    								
+		    			    				$('#dns-content form').remove();
+		    			    				$('#dns-content').append(
+		    			    					$('<p></p>').append(
+		    			    						$('<i></i>')
+		    			    						.text('Saving zone file '+file+' ...')
+		    		    						));
+		    			    				
+		    			    				window.lim.postJSON('/dns/zone', {
+		    			    					zone: {
+		    			    						file: file,
+		    			    						content: content
+		    			    					}
+		    			    				})
+		    			    				.done(function (data) {
+	    										$('#dns-content p')
+	    										.text('Saved zone file '+file+' successfully')
+	    										.addClass('text-success');
+		    			    				})
+	    									.fail(function (jqXHR) {
+	    										$('#dns-content p')
+	    										.text('Unable to save zone file '+file+': '+window.lim.getXHRError(jqXHR))
+	    										.addClass('text-error');
+	    									});
+		    								return false;
+		    							});
+		    						});
+		    						return;
+		    					}
+		    					
+								$('#dns-content p')
+								.text('Zone file '+file+' not found');
+		    				})
+							.fail(function (jqXHR) {
+								$('#dns-content p')
+								.text('Unable to read zone file '+file+': '+window.lim.getXHRError(jqXHR))
+								.addClass('text-error');
+							});
+		    			}
+		    			return false;
+		    		});
+		    		$('#dns-content #submit').prop('disabled',true);
 					that.getZoneUpdate();
 				});
 			},
 			getZoneUpdate: function () {
+				window.lim.getJSON('/dns/zones')
+				.done(function (data) {
+		    		if (data.zone && data.zone.length) {
+		    			$('#dns-content select').empty();
+		    			
+			    		data.zone.sort(function (a, b) {
+			    			return (a.file > b.file) ? 1 : ((a.file > b.file) ? -1 : 0);
+			    		});
+
+			    		$.each(data.zone, function () {
+			    			$('#dns-content select').append(
+			    				$('<option></option>').text(this.file)
+			    				);
+			    		});
+			    		$('#dns-content select').prop('disabled',false);
+			    		$('#dns-content .selectpicker').selectpicker('refresh');
+			    		$('#dns-content #submit').prop('disabled',false);
+			    		return;
+		    		}
+		    		else if (data.zone && data.zone.file) {
+		    			$('#dns-content select')
+		    			.empty()
+		    			.append($('<option></option>').text(data.zone.file));
+
+			    		$('#dns-content select').prop('disabled',false);
+			    		$('#dns-content .selectpicker').selectpicker('refresh');
+			    		$('#dns-content #submit').prop('disabled',false);
+		    			return;
+		    		}
+		    		
+		    		$('#dns-content option').text('No zone files found');
+				})
+				.fail(function () {
+					$('#dns-content option').text('failed');
+				});
 			},
 			//
 			loadZoneDelete: function () {

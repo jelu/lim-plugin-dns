@@ -229,10 +229,52 @@
 				window.lim.loadPage('/_dns/zone_read.html')
 				.done(function (data) {
 					$('#dns-content').html(data);
-					that.getZoneRead();
+		    		$('#dns-content select').prop('disabled',true);
+		    		$('#dns-content .selectpicker').selectpicker();
+		    		$('#dns-content form').submit(function () {
+		    			return false;
+		    		});
+		    		$('#dns-content #submit').prop('disabled',true);
+		    		that.getZoneRead();
 				});
 			},
 			getZoneRead: function () {
+				window.lim.getJSON('/dns/zones')
+				.done(function (data) {
+		    		if (data.zone && data.zone.length) {
+		    			$('#dns-content select').empty();
+		    			
+			    		data.zone.sort(function (a, b) {
+			    			return (a.file > b.file) ? 1 : ((a.file > b.file) ? -1 : 0);
+			    		});
+
+			    		$.each(data.zone, function () {
+			    			$('#dns-content select').append(
+			    				'<option>'+this.file+'</option>'
+			    				);
+			    		});
+			    		$('#dns-content select').prop('disabled',false);
+			    		$('#dns-content .selectpicker').selectpicker('refresh');
+			    		$('#dns-content #submit').prop('disabled',false);
+			    		return;
+		    		}
+		    		else if (data.zone.file) {
+		    			$('#dns-content select')
+		    			.empty()
+		    			.append(
+		    				'<option>'+data.zone.file+'</option>'
+		    				);
+			    		$('#dns-content select').prop('disabled',false);
+			    		$('#dns-content .selectpicker').selectpicker('refresh');
+			    		$('#dns-content #submit').prop('disabled',false);
+		    			return;
+		    		}
+		    		
+		    		$('#dns-content option').text('No zone files found');
+				})
+				.fail(function () {
+					$('#dns-content option').text('failed');
+				});
 			},
 			//
 			loadZoneUpdate: function () {

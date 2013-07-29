@@ -154,7 +154,7 @@
 			    		});
 			    		return;
 		    		}
-		    		else if (data.zone.file) {
+		    		else if (data.zone && data.zone.file) {
 		    			$('#dns-content table tbody')
 		    			.empty()
 		    			.append(
@@ -258,7 +258,7 @@
 			    		$('#dns-content #submit').prop('disabled',false);
 			    		return;
 		    		}
-		    		else if (data.zone.file) {
+		    		else if (data.zone && data.zone.file) {
 		    			$('#dns-content select')
 		    			.empty()
 		    			.append(

@@ -144,13 +144,13 @@
 
 			    		$.each(data.zone, function () {
 			    			$('#dns-content table tbody').append(
-			    				'<tr>'+
-			    				'<td>'+this.file+'</td>'+
-			    				'<td>'+this.software+'</td>'+
-			    				'<td>'+(this.read ? 'Yes' : 'No')+'</td>'+
-			    				'<td>'+(this.write ? 'Yes' : 'No')+'</td>'+
-			    				'</tr>'
-			    				);
+			    				$('<tr></tr>')
+			    				.append(
+			    					$('<td></td>').text(this.file),
+			    					$('<td></td>').text(this.software),
+			    					$('<td></td>').text(this.read ? 'Yes' : 'No'),
+			    					$('<td></td>').text(this.write ? 'Yes' : 'No')
+		    					));
 			    		});
 			    		return;
 		    		}
@@ -158,13 +158,13 @@
 		    			$('#dns-content table tbody')
 		    			.empty()
 		    			.append(
-		    				'<tr>'+
-		    				'<td>'+data.zone.file+'</td>'+
-		    				'<td>'+data.zone.software+'</td>'+
-		    				'<td>'+(data.zone.read ? 'Yes' : 'No')+'</td>'+
-		    				'<td>'+(data.zone.write ? 'Yes' : 'No')+'</td>'+
-		    				'</tr>'
-		    				);
+		    				$('<tr></tr>')
+		    				.append(
+		    					$('<td></td>').text(data.zone.file),
+		    					$('<td></td>').text(data.zone.software),
+		    					$('<td></td>').text(data.zone.read ? 'Yes' : 'No'),
+		    					$('<td></td>').text(data.zone.write ? 'Yes' : 'No')
+	    					));
 		    			return;
 		    		}
 		    		
@@ -202,17 +202,8 @@
 							.addClass('text-success');
 						})
 						.fail(function (jqXHR) {
-							var message;
-							try {
-								message = $.parseJSON(jqXHR.responseText)['Lim::Error'].message+'!';
-							}
-							catch (dummy) {
-							}
-							if (!message) {
-								message = 'Reason unknown, please check your system logs!';
-							}
 							$('#dns-content p')
-							.text('Unable to created zone file '+file+': '+message)
+							.text('Unable to created zone file '+file+': '+window.lim.getXHRError(jqXHR))
 							.addClass('text-error');
 						});
 
@@ -232,6 +223,40 @@
 		    		$('#dns-content select').prop('disabled',true);
 		    		$('#dns-content .selectpicker').selectpicker();
 		    		$('#dns-content form').submit(function () {
+	    				var file = $('#dns-content select option:selected').text();
+		    			if (file) {
+		    				$('#dns-content form').remove();
+		    				$('#dns-content').append(
+		    					$('<p></p>').append(
+		    						$('<i></i>')
+		    						.text('Loading zone file '+file+' ...')
+	    						));
+		    				window.lim.getJSON('/dns/zone', {
+		    					zone: {
+		    						file: file,
+		    						as_content: true
+		    					}
+		    				})
+		    				.done(function (data) {
+		    					if (data.zone && !data.zone.length && data.zone.file && data.zone.content) {
+		    						$('#dns-content p').text('Content of zone file '+file);
+		    						$('#dns-content').append(
+		    							$('<pre class="prettyprint linenums"></pre>')
+		    							.text(data.zone.content)
+		    							);
+		    						prettyPrint();
+		    						return;
+		    					}
+		    					
+								$('#dns-content p')
+								.text('Zone file '+file+' not found');
+		    				})
+							.fail(function (jqXHR) {
+								$('#dns-content p')
+								.text('Unable to read zone file '+file+': '+window.lim.getXHRError(jqXHR))
+								.addClass('text-error');
+							});
+		    			}
 		    			return false;
 		    		});
 		    		$('#dns-content #submit').prop('disabled',true);
@@ -250,7 +275,7 @@
 
 			    		$.each(data.zone, function () {
 			    			$('#dns-content select').append(
-			    				'<option>'+this.file+'</option>'
+			    				$('<option></option>').text(this.file)
 			    				);
 			    		});
 			    		$('#dns-content select').prop('disabled',false);
@@ -261,9 +286,8 @@
 		    		else if (data.zone && data.zone.file) {
 		    			$('#dns-content select')
 		    			.empty()
-		    			.append(
-		    				'<option>'+data.zone.file+'</option>'
-		    				);
+		    			.append($('<option></option>').text(data.zone.file));
+
 			    		$('#dns-content select').prop('disabled',false);
 			    		$('#dns-content .selectpicker').selectpicker('refresh');
 			    		$('#dns-content #submit').prop('disabled',false);

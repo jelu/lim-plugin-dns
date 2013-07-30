@@ -1,1 +1,27 @@
-<h2>Not implemented</h2>
+<h2>Create Zone Resource Record</h2>
+<form>
+  <fieldset>
+    <legend>Select a zone file in which to create an resource record</legend>
+    <label>Zone File</label>
+    <select id="file" class="selectpicker show-menu-arrow span9" required>
+      <option>Loading...</option>
+    </select>
+    <span class="help-block">Click on the input field to get a list of zone files to select from.</span>
+    <label>Name</label>
+    <input id="rrName" type="text" placeholder="Enter name..." required />
+    <span class="help-block">The resource record name.</span>
+    <label>TTL</label>
+    <input id="rrTTL" type="text" placeholder="Enter TTL..." />
+    <span class="help-block">The TTL of the resource record (optional).</span>
+    <label>Type</label>
+    <input id="rrType" type="text" placeholder="Enter type..." required />
+    <span class="help-block">The type of the resource record.</span>
+    <label>Class</label>
+    <input id="rrClass" type="text" placeholder="Enter class..." />
+    <span class="help-block">The type of the resource record (optional).</span>
+    <label>RDATA</label>
+    <input id="rrRDATA" class="span9" type="text" placeholder="Enter RDATA..." required />
+    <span class="help-block">The RDATA of the resource record.</span>
+    <button id="submit" type="submit" class="btn btn-primary">Create Zone Resource Record</button>
+  </fieldset>
+</form>

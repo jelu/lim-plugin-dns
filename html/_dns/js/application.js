@@ -517,7 +517,7 @@
 		    				})
 							.fail(function (jqXHR) {
 								$('#dns-content p')
-								.text('Unable to read zone file '+file+': '+window.lim.getXHRError(jqXHR))
+								.text('Unable to read options from zone file '+file+': '+window.lim.getXHRError(jqXHR))
 								.addClass('text-error');
 							});
 		    			}
@@ -757,10 +757,82 @@
 				window.lim.loadPage('/_dns/rr_list.html')
 				.done(function (data) {
 					$('#dns-content').html(data);
+		    		$('#dns-content select').prop('disabled',true);
+		    		$('#dns-content .selectpicker').selectpicker();
+		    		$('#dns-content form').submit(function () {
+		    			var file = $('#dns-content select option:selected').text();
+		    			if (file) {
+		    				$('#dns-content form').remove();
+		    				$('#dns-content').append(
+		    					$('<p></p>').append(
+		    						$('<i></i>')
+		    						.text('Loading zone file '+file+' resource records ...')
+	    						));
+		    				window.lim.getJSON('/dns/zone_rr', {
+		    					zone: {
+		    						file: file
+		    					}
+		    				})
+		    				.done(function (data) {
+		    					if (data.zone && !data.zone.length && data.zone.file) {
+		    						window.lim.loadPage('/_dns/rr_list_table.html')
+		    						.done(function (data2) {
+		    							$('#dns-content').html(data2);
+		    							$('#dns-content #zoneFile').text(file);
+
+		    				    		if (data.zone.rr && data.zone.rr.length) {
+		    				    			$('#dns-content table tbody').empty();
+		    				    			
+		    					    		$.each(data.zone.rr, function () {
+		    					    			$('#dns-content table tbody').append(
+		    					    				$('<tr></tr>')
+		    					    				.append(
+		    					    					$('<td></td>').text(this.name),
+		    					    					$('<td></td>').text(this.ttl ? this.ttl : ''),
+		    					    					$('<td></td>').text(this.type),
+		    					    					$('<td></td>').text(this.class ? this.class : ''),
+		    					    					$('<td></td>').text(this.rdata)
+		    				    					));
+		    					    		});
+		    					    		return;
+		    				    		}
+		    				    		else if (data.zone.rr && data.zone.rr.name) {
+		    				    			$('#dns-content table tbody')
+		    				    			.empty()
+		    				    			.append(
+		    				    				$('<tr></tr>')
+		    				    				.append(
+		    				    					$('<td></td>').text(data.zone.rr.name),
+		    				    					$('<td></td>').text(data.zone.rr.ttl ? data.zone.rr.ttl : ''),
+		    				    					$('<td></td>').text(data.zone.rr.type),
+		    				    					$('<td></td>').text(data.zone.rr.class ? data.zone.rr.class : ''),
+		    				    					$('<td></td>').text(data.zone.rr.rdata)
+		    			    					));
+		    				    			return;
+		    				    		}
+		    				    		
+		    				    		$('#dns-content table td i').text('No zone resource records found');
+		    						});
+		    						return;
+		    					}
+		    					
+								$('#dns-content p')
+								.text('No zone resource records found in zone file '+file+'.');
+		    				})
+							.fail(function (jqXHR) {
+								$('#dns-content p')
+								.text('Unable to read resource records from zone file '+file+': '+window.lim.getXHRError(jqXHR))
+								.addClass('text-error');
+							});
+		    			}
+	    				return false;
+		    		});
+		    		$('#dns-content #submit').prop('disabled',true);
 					that.getRRList();
 				});
 			},
 			getRRList: function () {
+				this._getZoneListSelect();
 			},
 			//
 			loadRRCreate: function () {
@@ -769,10 +841,62 @@
 				window.lim.loadPage('/_dns/rr_create.html')
 				.done(function (data) {
 					$('#dns-content').html(data);
+		    		$('#dns-content select').prop('disabled',true);
+		    		$('#dns-content .selectpicker').selectpicker();
+		    		$('#dns-content form').submit(function () {
+		    			var file = $('#dns-content select option:selected').text(),
+		    				name = $('#rrName').val(),
+		    				ttl = $('#rrTTL').val(),
+		    				type = $('#rrType').val(),
+		    				_class = $('#rrClass').val(),
+		    				rdata = $('#rrRDATA').val();
+		    			
+		    			if (file && name && rdata) {
+							$('#dns-content form').remove();
+							$('#dns-content')
+							.append($('<p></p>')
+								.append($('<i></i>')
+									.text('Creating zone resource record '+name+' in zone file '+file+', please wait ...')
+									));
+		
+							var rr = {
+								name: name,
+								type: type,
+								rdata: rdata
+							};
+							if (ttl) {
+								rr.ttl = ttl;
+							}
+							if (_class) {
+								rr.class = _class;
+							}
+							
+							window.lim.putJSON('/dns/zone_rr', {
+								zone: {
+									file: file,
+									rr: rr
+								}
+							})
+							.done(function (data) {
+								$('#dns-content p')
+								.text('Successfully created zone resource record '+name+' in zone file '+file+'.')
+								.addClass('text-success');
+							})
+							.fail(function (jqXHR) {
+								$('#dns-content p')
+								.text('Unable to created zone resource record '+name+' in zone file '+file+': '+window.lim.getXHRError(jqXHR))
+								.addClass('text-error');
+							});
+		    			}
+		    			
+	    				return false;
+		    		});
+		    		$('#dns-content #submit').prop('disabled',true);
 					that.getRRCreate();
 				});
 			},
 			getRRCreate: function () {
+				this._getZoneListSelect();
 			},
 			//
 			loadRRRead: function () {
@@ -785,6 +909,7 @@
 				});
 			},
 			getRRRead: function () {
+				this._getZoneListSelect();
 			},
 			//
 			loadRRUpdate: function () {
@@ -797,6 +922,7 @@
 				});
 			},
 			getRRUpdate: function () {
+				this._getZoneListSelect();
 			},
 			//
 			loadRRDelete: function () {
@@ -809,6 +935,7 @@
 				});
 			},
 			getRRDelete: function () {
+				this._getZoneListSelect();
 			},
 		};
 		window.lim.module.dns.init();

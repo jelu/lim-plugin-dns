@@ -411,7 +411,7 @@
 		    		$('#dns-content form').submit(function () {
 	    				file = $('#dns-content select option:selected').text();
 	    				$('#dns-content #zoneFile').text(file);
-	    				$('#deleteZoneFile').modal('show')
+	    				$('#deleteZoneFile').modal('show');
 	    				return false;
 		    		});
 		    		$('#deleteZoneFile button.btn-primary').click(function () {
@@ -513,7 +513,7 @@
 		    					}
 		    					
 								$('#dns-content p')
-								.text('Zone file '+file+' not found');
+								.text('No zone options found in zone file '+file+'.');
 		    				})
 							.fail(function (jqXHR) {
 								$('#dns-content p')
@@ -592,7 +592,47 @@
 		    		$('#dns-content select').prop('disabled',true);
 		    		$('#dns-content .selectpicker').selectpicker();
 		    		$('#dns-content form').submit(function () {
-		    			var file = $('#dns-content select option:selected').text();
+		    			var file = $('#dns-content select option:selected').text(),
+		    				name = $('#optionName').val();
+    			
+		    			if (file && name) {
+							$('#dns-content form').remove();
+							$('#dns-content')
+							.append($('<p></p>')
+								.append($('<i></i>')
+									.text('Loading zone option '+name+' from zone file '+file+', please wait ...')
+									));
+		
+							window.lim.getJSON('/dns/zone_option', {
+								zone: {
+									file: file,
+									option: {
+										name: name
+									}
+								}
+							})
+							.done(function (data) {
+								if (data.zone && data.zone.file && data.zone.option && data.zone.option.name) {
+		    						window.lim.loadPage('/_dns/opt_read_opt.html')
+		    						.done(function (data2) {
+		    							$('#dns-content').html(data2);
+		    							$('#dns-content #zoneFile').text(file);
+		    							$('#dns-content #optName').text(data.zone.option.name);
+		    							$('#dns-content #optValue').text(data.zone.option.value);
+		    						});
+		    						return;
+								}
+								
+								$('#dns-content p')
+								.text('Zone option '+name+' not found in zone file '+file+'.');
+							})
+							.fail(function (jqXHR) {
+								$('#dns-content p')
+								.text('Unable to load zone option '+name+' from zone file '+file+': '+window.lim.getXHRError(jqXHR))
+								.addClass('text-error');
+							});
+		    			}
+		    			
 	    				return false;
 		    		});
 		    		$('#dns-content #submit').prop('disabled',true);
@@ -612,7 +652,39 @@
 		    		$('#dns-content select').prop('disabled',true);
 		    		$('#dns-content .selectpicker').selectpicker();
 		    		$('#dns-content form').submit(function () {
-		    			var file = $('#dns-content select option:selected').text();
+		    			var file = $('#dns-content select option:selected').text(),
+		    				name = $('#optionName').val(),
+		    				value = $('#optionValue').val();
+	    			
+		    			if (file && name && value) {
+							$('#dns-content form').remove();
+							$('#dns-content')
+							.append($('<p></p>')
+								.append($('<i></i>')
+									.text('Updating zone option '+name+' in zone file '+file+', please wait ...')
+									));
+		
+							window.lim.postJSON('/dns/zone_option', {
+								zone: {
+									file: file,
+									option: {
+										name: name,
+										value: value
+									}
+								}
+							})
+							.done(function (data) {
+								$('#dns-content p')
+								.text('Successfully updated zone option '+name+' in zone file '+file+'.')
+								.addClass('text-success');
+							})
+							.fail(function (jqXHR) {
+								$('#dns-content p')
+								.text('Unable to update zone option '+name+' in zone file '+file+': '+window.lim.getXHRError(jqXHR))
+								.addClass('text-error');
+							});
+		    			}
+		    			
 	    				return false;
 		    		});
 		    		$('#dns-content #submit').prop('disabled',true);
@@ -624,7 +696,8 @@
 			},
 			//
 			loadOptionDelete: function () {
-				var that = this;
+				var that = this,
+					file, name;
 				
 				window.lim.loadPage('/_dns/opt_delete.html')
 				.done(function (data) {
@@ -632,8 +705,40 @@
 		    		$('#dns-content select').prop('disabled',true);
 		    		$('#dns-content .selectpicker').selectpicker();
 		    		$('#dns-content form').submit(function () {
-		    			var file = $('#dns-content select option:selected').text();
+			    		file = $('#dns-content select option:selected').text();
+	    				name = $('#optionName').val();
+	    				$('#dns-content #zoneFile').text(file);
+	    				$('#dns-content #optName').text(name);
+	    				$('#deleteZoneOption').modal('show');
 	    				return false;
+		    		});
+		    		$('#deleteZoneOption button.btn-primary').click(function () {
+						$('#dns-content form').remove();
+						$('#dns-content')
+						.append($('<p></p>')
+							.append($('<i></i>')
+								.text('Deleting zone option '+name+' from zone file '+file+', please wait ...')
+								));
+		    			$('#deleteZoneOption').modal('hide');
+	
+						window.lim.delJSON('/dns/zone_option', {
+							zone: {
+								file: file,
+								option: {
+									name: name
+								}
+							}
+						})
+						.done(function (data) {
+							$('#dns-content p')
+							.text('Successfully deleted zone option '+name+' from zone file '+file+'.')
+							.addClass('text-success');
+						})
+						.fail(function (jqXHR) {
+							$('#dns-content p')
+							.text('Unable to delete zone option '+name+' from zone file '+file+': '+window.lim.getXHRError(jqXHR))
+							.addClass('text-error');
+						});
 		    		});
 		    		$('#dns-content #submit').prop('disabled',true);
 					that.getOptionDelete();

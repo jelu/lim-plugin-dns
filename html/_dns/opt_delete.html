@@ -13,3 +13,16 @@
     <button id="submit" type="submit" class="btn btn-danger">Delete Zone Option</button>
   </fieldset>
 </form>
+<div id="deleteZoneOption" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="deleteZoneOptionLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="deleteZoneOptionLabel">Confirm Zone Option Delete</h3>
+  </div>
+  <div class="modal-body">
+    <p>Are you sure you want to delete the zone option <span id="optName"></span> from the zone file <span id="zoneFile"></span>?</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+    <button class="btn btn-primary btn-danger">Delete</button>
+  </div>
+</div>

@@ -252,7 +252,7 @@
 							})
 							.fail(function (jqXHR) {
 								$('#dns-content p')
-								.text('Unable to created zone file '+file+': '+window.lim.getXHRError(jqXHR))
+								.text('Unable to create zone file '+file+': '+window.lim.getXHRError(jqXHR))
 								.addClass('text-error');
 							});
 						}
@@ -568,7 +568,7 @@
 							})
 							.fail(function (jqXHR) {
 								$('#dns-content p')
-								.text('Unable to created zone option '+name+' in zone file '+file+': '+window.lim.getXHRError(jqXHR))
+								.text('Unable to create zone option '+name+' in zone file '+file+': '+window.lim.getXHRError(jqXHR))
 								.addClass('text-error');
 							});
 		    			}
@@ -905,6 +905,81 @@
 				window.lim.loadPage('/_dns/rr_read.html')
 				.done(function (data) {
 					$('#dns-content').html(data);
+		    		$('#dns-content select').prop('disabled',true);
+		    		$('#dns-content .selectpicker').selectpicker();
+		    		$('#dns-content form').submit(function () {
+		    			var file = $('#dns-content select option:selected').text(),
+		    				name = $('#rrName').val();
+    			
+		    			if (file && name) {
+							$('#dns-content form').remove();
+							$('#dns-content')
+							.append($('<p></p>')
+								.append($('<i></i>')
+									.text('Loading zone resource record '+name+' from zone file '+file+', please wait ...')
+									));
+		
+							window.lim.getJSON('/dns/zone_rr', {
+								zone: {
+									file: file,
+									rr: {
+										name: name
+									}
+								}
+							})
+							.done(function (data) {
+								if (data.zone && data.zone.file && data.zone.rr) {
+		    						window.lim.loadPage('/_dns/rr_read_rr.html')
+		    						.done(function (data2) {
+		    							$('#dns-content').html(data2);
+		    							$('#dns-content #zoneFile').text(file);
+		    							$('#dns-content #rrName').text(name);
+		    							
+		    				    		if (data.zone.rr.length) {
+		    				    			$('#dns-content table tbody').empty();
+		    				    			
+		    					    		$.each(data.zone.rr, function () {
+		    					    			$('#dns-content table tbody').append(
+		    					    				$('<tr></tr>')
+		    					    				.append(
+		    					    					$('<td></td>').text(this.name),
+		    					    					$('<td></td>').text(this.ttl ? this.ttl : ''),
+		    					    					$('<td></td>').text(this.type),
+		    					    					$('<td></td>').text(this.class ? this.class : ''),
+		    					    					$('<td></td>').text(this.rdata)
+		    				    					));
+		    					    		});
+		    				    		}
+		    				    		else if (data.zone.rr.name) {
+		    				    			$('#dns-content table tbody')
+		    				    			.empty()
+		    				    			.append(
+		    				    				$('<tr></tr>')
+		    				    				.append(
+		    				    					$('<td></td>').text(data.zone.rr.name),
+		    				    					$('<td></td>').text(data.zone.rr.ttl ? data.zone.rr.ttl : ''),
+		    				    					$('<td></td>').text(data.zone.rr.type),
+		    				    					$('<td></td>').text(data.zone.rr.class ? data.zone.rr.class : ''),
+		    				    					$('<td></td>').text(data.zone.rr.rdata)
+		    			    					));
+		    				    		}
+		    						});
+		    						return;
+								}
+								
+								$('#dns-content p')
+								.text('Zone resource record '+name+' not found in zone file '+file+'.');
+							})
+							.fail(function (jqXHR) {
+								$('#dns-content p')
+								.text('Unable to load zone resource record '+name+' from zone file '+file+': '+window.lim.getXHRError(jqXHR))
+								.addClass('text-error');
+							});
+		    			}
+		    			
+	    				return false;
+		    		});
+		    		$('#dns-content #submit').prop('disabled',true);
 					that.getRRRead();
 				});
 			},
@@ -918,6 +993,57 @@
 				window.lim.loadPage('/_dns/rr_update.html')
 				.done(function (data) {
 					$('#dns-content').html(data);
+		    		$('#dns-content select').prop('disabled',true);
+		    		$('#dns-content .selectpicker').selectpicker();
+		    		$('#dns-content form').submit(function () {
+		    			var file = $('#dns-content select option:selected').text(),
+		    				name = $('#rrName').val(),
+		    				ttl = $('#rrTTL').val(),
+		    				type = $('#rrType').val(),
+		    				_class = $('#rrClass').val(),
+		    				rdata = $('#rrRDATA').val();
+		    			
+		    			if (file && name && rdata) {
+							$('#dns-content form').remove();
+							$('#dns-content')
+							.append($('<p></p>')
+								.append($('<i></i>')
+									.text('Updating zone resource record '+name+' in zone file '+file+', please wait ...')
+									));
+		
+							var rr = {
+								name: name,
+								type: type,
+								rdata: rdata
+							};
+							if (ttl) {
+								rr.ttl = ttl;
+							}
+							if (_class) {
+								rr.class = _class;
+							}
+							
+							window.lim.postJSON('/dns/zone_rr', {
+								zone: {
+									file: file,
+									rr: rr
+								}
+							})
+							.done(function (data) {
+								$('#dns-content p')
+								.text('Successfully updated zone resource record '+name+' in zone file '+file+'.')
+								.addClass('text-success');
+							})
+							.fail(function (jqXHR) {
+								$('#dns-content p')
+								.text('Unable to update zone resource record '+name+' in zone file '+file+': '+window.lim.getXHRError(jqXHR))
+								.addClass('text-error');
+							});
+		    			}
+		    			
+	    				return false;
+		    		});
+		    		$('#dns-content #submit').prop('disabled',true);
 					that.getRRUpdate();
 				});
 			},
@@ -926,11 +1052,51 @@
 			},
 			//
 			loadRRDelete: function () {
-				var that = this;
+				var that = this,
+					file, name;
 				
 				window.lim.loadPage('/_dns/rr_delete.html')
 				.done(function (data) {
 					$('#dns-content').html(data);
+		    		$('#dns-content select').prop('disabled',true);
+		    		$('#dns-content .selectpicker').selectpicker();
+		    		$('#dns-content form').submit(function () {
+			    		file = $('#dns-content select option:selected').text();
+	    				name = $('#rrName').val();
+	    				$('#dns-content #zoneFile').text(file);
+	    				$('#dns-content #rrName').text(name);
+	    				$('#deleteZoneRR').modal('show');
+	    				return false;
+		    		});
+		    		$('#deleteZoneRR button.btn-primary').click(function () {
+						$('#dns-content form').remove();
+						$('#dns-content')
+						.append($('<p></p>')
+							.append($('<i></i>')
+								.text('Deleting zone resource record '+name+' from zone file '+file+', please wait ...')
+								));
+		    			$('#deleteZoneRR').modal('hide');
+	
+						window.lim.delJSON('/dns/zone_rr', {
+							zone: {
+								file: file,
+								rr: {
+									name: name
+								}
+							}
+						})
+						.done(function (data) {
+							$('#dns-content p')
+							.text('Successfully deleted resource record option '+name+' from zone file '+file+'.')
+							.addClass('text-success');
+						})
+						.fail(function (jqXHR) {
+							$('#dns-content p')
+							.text('Unable to delete resource record option '+name+' from zone file '+file+': '+window.lim.getXHRError(jqXHR))
+							.addClass('text-error');
+						});
+		    		});
+		    		$('#dns-content #submit').prop('disabled',true);
 					that.getRRDelete();
 				});
 			},

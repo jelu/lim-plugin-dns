@@ -127,7 +127,7 @@
 		    			$('#dns-content select').empty();
 		    			
 			    		data.zone.sort(function (a, b) {
-			    			return (a.file > b.file) ? 1 : ((a.file > b.file) ? -1 : 0);
+			    			return (a.file > b.file) ? 1 : ((a.file < b.file) ? -1 : 0);
 			    		});
 
 			    		$.each(data.zone, function () {
@@ -182,7 +182,7 @@
 		    			$('#dns-content table tbody').empty();
 		    			
 			    		data.zone.sort(function (a, b) {
-			    			return (a.file > b.file) ? 1 : ((a.file > b.file) ? -1 : 0);
+			    			return (a.file > b.file) ? 1 : ((a.file < b.file) ? -1 : 0);
 			    		});
 
 			    		$.each(data.zone, function () {
@@ -482,7 +482,7 @@
 		    				    			$('#dns-content table tbody').empty();
 		    				    			
 		    					    		data.zone.option.sort(function (a, b) {
-		    					    			return (a.file > b.file) ? 1 : ((a.file > b.file) ? -1 : 0);
+		    					    			return (a.file > b.file) ? 1 : ((a.file < b.file) ? -1 : 0);
 		    					    		});
 
 		    					    		$.each(data.zone.option, function () {

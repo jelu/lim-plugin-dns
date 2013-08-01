@@ -116,7 +116,7 @@
 			loadAbout: function () {
 				window.lim.loadPage('/_dns/about.html')
 				.done(function (data) {
-					$('#dns-content').html(data);
+					window.lim.display(data, '#dns-content');
 				});
 			},
 			//
@@ -171,7 +171,7 @@
 				
 				window.lim.loadPage('/_dns/zone_list.html')
 				.done(function (data) {
-					$('#dns-content').html(data);
+					window.lim.display(data, '#dns-content');
 					that.getZoneList();
 				});
 			},
@@ -228,7 +228,7 @@
 				
 				window.lim.loadPage('/_dns/zone_create.html')
 				.done(function (data) {
-					$('#dns-content').html(data);
+					window.lim.display(data, '#dns-content');
 					$('#dns-content form').submit(function () {
 						var file = $('#dns-content #file').val();
 						
@@ -269,7 +269,7 @@
 				
 				window.lim.loadPage('/_dns/zone_read.html')
 				.done(function (data) {
-					$('#dns-content').html(data);
+					window.lim.display(data, '#dns-content');
 		    		$('#dns-content select').prop('disabled',true);
 		    		$('#dns-content .selectpicker').selectpicker();
 		    		$('#dns-content form').submit(function () {
@@ -322,7 +322,7 @@
 				
 				window.lim.loadPage('/_dns/zone_update.html')
 				.done(function (data) {
-					$('#dns-content').html(data);
+					window.lim.display(data, '#dns-content');
 		    		$('#dns-content select').prop('disabled',true);
 		    		$('#dns-content .selectpicker').selectpicker();
 		    		$('#dns-content form').submit(function () {
@@ -344,7 +344,7 @@
 		    					if (data.zone && !data.zone.length && data.zone.file) {
 		    						window.lim.loadPage('/_dns/zone_update_edit.html')
 		    						.done(function (data2) {
-		    							$('#dns-content').html(data2);
+		    							window.lim.display(data2, '#dns-content');
 		    							$('#dns-content #zoneFile').text(file);
 		    							$('#dns-content textarea').val(data.zone.content);
 		    							$('#dns-content form').submit(function () {
@@ -405,7 +405,7 @@
 				.done(function (data) {
 					var file;
 					
-					$('#dns-content').html(data);
+					window.lim.display(data, '#dns-content');
 		    		$('#dns-content select').prop('disabled',true);
 		    		$('#dns-content .selectpicker').selectpicker();
 		    		$('#dns-content form').submit(function () {
@@ -454,7 +454,7 @@
 				
 				window.lim.loadPage('/_dns/opt_list.html')
 				.done(function (data) {
-					$('#dns-content').html(data);
+					window.lim.display(data, '#dns-content');
 		    		$('#dns-content select').prop('disabled',true);
 		    		$('#dns-content .selectpicker').selectpicker();
 		    		$('#dns-content form').submit(function () {
@@ -475,7 +475,7 @@
 		    					if (data.zone && !data.zone.length && data.zone.file) {
 		    						window.lim.loadPage('/_dns/opt_list_table.html')
 		    						.done(function (data2) {
-		    							$('#dns-content').html(data2);
+		    							window.lim.display(data2, '#dns-content');
 		    							$('#dns-content #zoneFile').text(file);
 
 		    				    		if (data.zone.option && data.zone.option.length) {
@@ -536,7 +536,7 @@
 				
 				window.lim.loadPage('/_dns/opt_create.html')
 				.done(function (data) {
-					$('#dns-content').html(data);
+					window.lim.display(data, '#dns-content');
 		    		$('#dns-content select').prop('disabled',true);
 		    		$('#dns-content .selectpicker').selectpicker();
 		    		$('#dns-content form').submit(function () {
@@ -588,7 +588,7 @@
 				
 				window.lim.loadPage('/_dns/opt_read.html')
 				.done(function (data) {
-					$('#dns-content').html(data);
+					window.lim.display(data, '#dns-content');
 		    		$('#dns-content select').prop('disabled',true);
 		    		$('#dns-content .selectpicker').selectpicker();
 		    		$('#dns-content form').submit(function () {
@@ -615,7 +615,7 @@
 								if (data.zone && data.zone.file && data.zone.option && data.zone.option.name) {
 		    						window.lim.loadPage('/_dns/opt_read_opt.html')
 		    						.done(function (data2) {
-		    							$('#dns-content').html(data2);
+		    							window.lim.display(data2, '#dns-content');
 		    							$('#dns-content #zoneFile').text(file);
 		    							$('#dns-content #optName').text(data.zone.option.name);
 		    							$('#dns-content #optValue').text(data.zone.option.value);
@@ -648,7 +648,7 @@
 				
 				window.lim.loadPage('/_dns/opt_update.html')
 				.done(function (data) {
-					$('#dns-content').html(data);
+					window.lim.display(data, '#dns-content');
 		    		$('#dns-content select').prop('disabled',true);
 		    		$('#dns-content .selectpicker').selectpicker();
 		    		$('#dns-content form').submit(function () {
@@ -701,7 +701,7 @@
 				
 				window.lim.loadPage('/_dns/opt_delete.html')
 				.done(function (data) {
-					$('#dns-content').html(data);
+					window.lim.display(data, '#dns-content');
 		    		$('#dns-content select').prop('disabled',true);
 		    		$('#dns-content .selectpicker').selectpicker();
 		    		$('#dns-content form').submit(function () {
@@ -756,7 +756,7 @@
 				
 				window.lim.loadPage('/_dns/rr_list.html')
 				.done(function (data) {
-					$('#dns-content').html(data);
+					window.lim.display(data, '#dns-content');
 		    		$('#dns-content select').prop('disabled',true);
 		    		$('#dns-content .selectpicker').selectpicker();
 		    		$('#dns-content form').submit(function () {
@@ -777,7 +777,7 @@
 		    					if (data.zone && !data.zone.length && data.zone.file) {
 		    						window.lim.loadPage('/_dns/rr_list_table.html')
 		    						.done(function (data2) {
-		    							$('#dns-content').html(data2);
+		    							window.lim.display(data2, '#dns-content');
 		    							$('#dns-content #zoneFile').text(file);
 
 		    				    		if (data.zone.rr && data.zone.rr.length) {
@@ -840,7 +840,7 @@
 				
 				window.lim.loadPage('/_dns/rr_create.html')
 				.done(function (data) {
-					$('#dns-content').html(data);
+					window.lim.display(data, '#dns-content');
 		    		$('#dns-content select').prop('disabled',true);
 		    		$('#dns-content .selectpicker').selectpicker();
 		    		$('#dns-content form').submit(function () {
@@ -904,7 +904,7 @@
 				
 				window.lim.loadPage('/_dns/rr_read.html')
 				.done(function (data) {
-					$('#dns-content').html(data);
+					window.lim.display(data, '#dns-content');
 		    		$('#dns-content select').prop('disabled',true);
 		    		$('#dns-content .selectpicker').selectpicker();
 		    		$('#dns-content form').submit(function () {
@@ -931,7 +931,7 @@
 								if (data.zone && data.zone.file && data.zone.rr) {
 		    						window.lim.loadPage('/_dns/rr_read_rr.html')
 		    						.done(function (data2) {
-		    							$('#dns-content').html(data2);
+		    							window.lim.display(data2, '#dns-content');
 		    							$('#dns-content #zoneFile').text(file);
 		    							$('#dns-content #rrName').text(name);
 		    							
@@ -992,7 +992,7 @@
 				
 				window.lim.loadPage('/_dns/rr_update.html')
 				.done(function (data) {
-					$('#dns-content').html(data);
+					window.lim.display(data, '#dns-content');
 		    		$('#dns-content select').prop('disabled',true);
 		    		$('#dns-content .selectpicker').selectpicker();
 		    		$('#dns-content form').submit(function () {
@@ -1057,7 +1057,7 @@
 				
 				window.lim.loadPage('/_dns/rr_delete.html')
 				.done(function (data) {
-					$('#dns-content').html(data);
+					window.lim.display(data, '#dns-content');
 		    		$('#dns-content select').prop('disabled',true);
 		    		$('#dns-content .selectpicker').selectpicker();
 		    		$('#dns-content form').submit(function () {

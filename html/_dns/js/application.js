@@ -152,6 +152,7 @@
 		    		}
 		    		
 		    		$('#dns-content option').text('No zone files found');
+		    		$('#dns-content .selectpicker').selectpicker('refresh');
 				})
 				.fail(function (jqXHR) {
 					$('#dns-content')

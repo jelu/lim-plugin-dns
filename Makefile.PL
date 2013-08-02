@@ -14,7 +14,10 @@ WriteMakefile(
     PREREQ_PM => {
         'Test::More' => 0,
         'common::sense' => 3,
-        'Lim' => 0.12,
+        'Digest::SHA' => 5,
+        'Fcntl' => 1.06,
+        'Getopt::Long' => 2.38,
+        'Lim' => 0.14,
         'Scalar::Util' => 1
     },
     (! eval { ExtUtils::MakeMaker->VERSION(6.46) } ? () :

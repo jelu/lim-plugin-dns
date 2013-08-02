@@ -1,2 +1,2 @@
 version=3
-http://search.cpan.org/dist/Lim-Plugin-ZFM/   .*/Lim-Plugin-ZFM-v?(\d[\d.-]+)\.(?:tar(?:\.gz|\.bz2)?|tgz|zip)$
+http://search.cpan.org/dist/Lim-Plugin-DNS/   .*/Lim-Plugin-DNS-v?(\d[\d.-]+)\.(?:tar(?:\.gz|\.bz2)?|tgz|zip)$

@@ -1,7 +1,7 @@
 Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
 Maintainer: Jerry Lundström <lundstrom.jerry@gmail.com>
-Source: http://search.cpan.org/dist/Lim-Plugin-ZFM/
-Name: Lim-Plugin-ZFM
+Source: http://search.cpan.org/dist/Lim-Plugin-DNS/
+Name: Lim-Plugin-DNS
 DISCLAIMER: This copyright info was automatically extracted 
  from the perl module. It may not be accurate, so you better 
  check the module sources in order to ensure the module for its 

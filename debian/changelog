@@ -1,4 +1,10 @@
-liblim-plugin-zfm-perl (0.10-1~unstable+1) unstable; urgency=low
+liblim-plugin-dns-perl (0.10-1~unstable+1) unstable; urgency=low
+
+  * New release v0.10.
+
+ -- Jerry Lundström <lundstrom.jerry@gmail.com>  Fri, 02 Aug 2013 12:06:37 +0200
+
+liblim-plugin-dns-perl (0.10-1~unstable+1) unstable; urgency=low
 
   * Initial Release.
 

@@ -8,18 +8,39 @@ WriteMakefile(
     AUTHOR              => q{Jerry Lundström <lundstrom.jerry@gmail.com>},
     VERSION_FROM        => 'lib/Lim/Plugin/DNS.pm',
     ABSTRACT_FROM       => 'lib/Lim/Plugin/DNS.pm',
-    ($ExtUtils::MakeMaker::VERSION >= 6.3002
-      ? ('LICENSE'=> 'perl')
-      : ()),
-    PREREQ_PM => {
-        'Test::More' => 0,
-        'common::sense' => 3,
-        'Digest::SHA' => 5,
-        'Fcntl' => 1.06,
-        'Getopt::Long' => 2.38,
-        'Lim' => 0.14,
-        'Scalar::Util' => 1
-    },
+    (! eval { ExtUtils::MakeMaker->VERSION(6.3002) } ? () :
+        (LICENSE => 'perl')
+    ),
+    (eval { ExtUtils::MakeMaker->VERSION(6.5503) } ?
+    (
+        BUILD_REQUIRES => {
+            'Test::More' => 0,
+            'common::sense' => 3,
+            'Digest::SHA' => 5,
+            'Fcntl' => 1.06,
+            'Getopt::Long' => 2.38,
+            'Lim' => 0.14,
+            'Scalar::Util' => 1
+        },
+        PREREQ_PM => {
+            'common::sense' => 3,
+            'Digest::SHA' => 5,
+            'Fcntl' => 1.06,
+            'Getopt::Long' => 2.38,
+            'Lim' => 0.14,
+            'Scalar::Util' => 1
+        }
+    ) : (
+        PREREQ_PM => {
+            'Test::More' => 0,
+            'common::sense' => 3,
+            'Digest::SHA' => 5,
+            'Fcntl' => 1.06,
+            'Getopt::Long' => 2.38,
+            'Lim' => 0.14,
+            'Scalar::Util' => 1
+        }
+    )),
     (! eval { ExtUtils::MakeMaker->VERSION(6.46) } ? () :
         (META_ADD => {
             resources => {

@@ -1,6 +1,6 @@
 (function ($) {
 	$(function () {
-		window.lim.module.dns = {
+		window.lim.plugin.dns = {
 			init: function () {
 				var that = this;
 				
@@ -1105,6 +1105,6 @@
 				this._getZoneListSelect();
 			},
 		};
-		window.lim.module.dns.init();
+		window.lim.plugin.dns.init();
 	});
 })(window.jQuery);

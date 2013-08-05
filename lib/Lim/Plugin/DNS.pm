@@ -40,19 +40,19 @@ does not manage DNS software specific information.
 
 =over 4
 
-=item $module_name = Lim::Plugin::DNS->Module
+=item $plugin_name = Lim::Plugin::DNS->Name
 
-Returns module name.
+Returns the plugin's name.
 
 =cut
 
-sub Module {
+sub Name {
     'DNS';
 }
 
-=item $module_name = Lim::Plugin::DNS->Description
+=item $plugin_description = Lim::Plugin::DNS->Description
 
-Returns module description.
+Returns the plugin's description.
 
 =cut
 

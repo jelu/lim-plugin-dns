@@ -11,10 +11,11 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildArch:      noarch
 BuildRequires:  perl(ExtUtils::MakeMaker)
-# Needed for test
 BuildRequires:  perl(Test::Simple)
+BuildRequires:  perl(Lim) >= 0.16
 
 Requires:  perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
+Requires:  perl(Lim) >= 0.16
 
 %description
 This plugin manage generic DNS related information like zone files via Lim. It
@@ -50,7 +51,7 @@ CLI perl libraries for managing a local or remote DNS installation
 via DNS Lim plugin.
 
 %package -n lim-management-console-dns
-Requires: lim-management-console-common = 0.14
+Requires: lim-management-console-common >= 0.16
 Summary: DNS Manager Lim plugin Management Console files
 Group: Development/Libraries
 Version: 0.10

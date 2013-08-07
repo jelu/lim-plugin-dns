@@ -1,5 +1,5 @@
 Name:           perl-Lim-Plugin-DNS
-Version:        0.10
+Version:        0.11
 Release:        1%{?dist}
 Summary:        Lim::Plugin::DNS - DNS management plugin for Lim
 
@@ -11,10 +11,11 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildArch:      noarch
 BuildRequires:  perl(ExtUtils::MakeMaker)
-# Needed for test
 BuildRequires:  perl(Test::Simple)
+BuildRequires:  perl(Lim) >= 0.16
 
 Requires:  perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
+Requires:  perl(Lim) >= 0.16
 
 %description
 This plugin manage generic DNS related information like zone files via Lim. It
@@ -23,37 +24,37 @@ does not manage DNS software specific information.
 %package -n perl-Lim-Plugin-DNS-Common
 Summary: Common perl libraries for DNS Lim plugin
 Group: Development/Libraries
-Version: 0.10
+Version: 0.11
 %description -n perl-Lim-Plugin-DNS-Common
 Common perl libraries for DNS Lim plugin.
 
 %package -n perl-Lim-Plugin-DNS-Server
 Summary: Server perl libraries for DNS Lim plugin
 Group: Development/Libraries
-Version: 0.10
+Version: 0.11
 %description -n perl-Lim-Plugin-DNS-Server
 Server perl libraries for DNS Lim plugin.
 
 %package -n perl-Lim-Plugin-DNS-Client
 Summary: Client perl libraries for DNS Lim plugin
 Group: Development/Libraries
-Version: 0.10
+Version: 0.11
 %description -n perl-Lim-Plugin-DNS-Client
 Client perl libraries for communicating with the DNS Lim plugin.
 
 %package -n perl-Lim-Plugin-DNS-CLI
 Summary: CLI perl libraries for DNS Lim plugin
 Group: Development/Libraries
-Version: 0.10
+Version: 0.11
 %description -n perl-Lim-Plugin-DNS-CLI
 CLI perl libraries for managing a local or remote DNS installation
 via DNS Lim plugin.
 
 %package -n lim-management-console-dns
-Requires: lim-management-console-common = 0.14
+Requires: lim-management-console-common >= 0.16
 Summary: DNS Manager Lim plugin Management Console files
 Group: Development/Libraries
-Version: 0.10
+Version: 0.11
 %description -n lim-management-console-dns
 DNS Manager Lim plugin Management Console files.
 
@@ -155,6 +156,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Aug 07 2013 Jerry Lundström < lundstrom.jerry at gmail.com > - 0.11-1
+- Release 0.11
 * Fri Aug 02 2013 Jerry Lundström < lundstrom.jerry at gmail.com > - 0.10-1
 - Release 0.10
 * Sat Aug 11 2012 Jerry Lundström < lundstrom.jerry at gmail.com > - 0.10-1

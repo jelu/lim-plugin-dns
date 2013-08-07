@@ -12,11 +12,11 @@ Lim::Plugin::DNS - DNS Manager plugin for Lim
 
 =head1 VERSION
 
-Version 0.10
+Version 0.11
 
 =cut
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 =head1 SYNOPSIS
 
@@ -40,19 +40,19 @@ does not manage DNS software specific information.
 
 =over 4
 
-=item $module_name = Lim::Plugin::DNS->Module
+=item $plugin_name = Lim::Plugin::DNS->Name
 
-Returns module name.
+Returns the plugin's name.
 
 =cut
 
-sub Module {
+sub Name {
     'DNS';
 }
 
-=item $module_name = Lim::Plugin::DNS->Description
+=item $plugin_description = Lim::Plugin::DNS->Description
 
-Returns module description.
+Returns the plugin's description.
 
 =cut
 
@@ -833,7 +833,7 @@ L<https://github.com/jelu/lim-plugin-dns/issues>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2012 Jerry Lundström.
+Copyright 2012-2013 Jerry Lundström.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published

@@ -1,3 +1,9 @@
+liblim-plugin-dns-perl (0.12-1~unstable+1) unstable; urgency=low
+
+  * New release v0.12.
+
+ -- Jerry Lundström <lundstrom.jerry@gmail.com>  Thu, 08 Aug 2013 08:09:33 +0200
+
 liblim-plugin-dns-perl (0.11-1~unstable+1) unstable; urgency=low
 
   * New release v0.11.

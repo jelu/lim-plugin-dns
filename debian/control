@@ -22,7 +22,7 @@ Package: liblim-plugin-dns-server-perl
 Architecture: all
 Depends: ${misc:Depends}, ${perl:Depends},
  liblim-plugin-dns-common-perl (= 0.11-1~unstable+1),
- liblim-server-perl (= 0.14-1~unstable+1)
+ liblim-server-perl (>= 0.16-1~unstable+1)
 Description: Server perl libraries for DNS Manager Lim plugin
  Server perl libraries for DNS Manager Lim plugin.
 

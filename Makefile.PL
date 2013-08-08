@@ -19,7 +19,7 @@ WriteMakefile(
             'Digest::SHA' => 5,
             'Fcntl' => 1.06,
             'Getopt::Long' => 2.38,
-            'Lim' => 0.14,
+            'Lim' => 0.16,
             'Scalar::Util' => 1
         },
         PREREQ_PM => {
@@ -27,7 +27,7 @@ WriteMakefile(
             'Digest::SHA' => 5,
             'Fcntl' => 1.06,
             'Getopt::Long' => 2.38,
-            'Lim' => 0.14,
+            'Lim' => 0.16,
             'Scalar::Util' => 1
         }
     ) : (
@@ -37,7 +37,7 @@ WriteMakefile(
             'Digest::SHA' => 5,
             'Fcntl' => 1.06,
             'Getopt::Long' => 2.38,
-            'Lim' => 0.14,
+            'Lim' => 0.16,
             'Scalar::Util' => 1
         }
     )),

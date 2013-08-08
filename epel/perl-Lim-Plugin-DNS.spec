@@ -1,5 +1,5 @@
 Name:           perl-Lim-Plugin-DNS
-Version:        0.11
+Version:        0.12
 Release:        1%{?dist}
 Summary:        Lim::Plugin::DNS - DNS management plugin for Lim
 
@@ -24,28 +24,28 @@ does not manage DNS software specific information.
 %package -n perl-Lim-Plugin-DNS-Common
 Summary: Common perl libraries for DNS Lim plugin
 Group: Development/Libraries
-Version: 0.11
+Version: 0.12
 %description -n perl-Lim-Plugin-DNS-Common
 Common perl libraries for DNS Lim plugin.
 
 %package -n perl-Lim-Plugin-DNS-Server
 Summary: Server perl libraries for DNS Lim plugin
 Group: Development/Libraries
-Version: 0.11
+Version: 0.12
 %description -n perl-Lim-Plugin-DNS-Server
 Server perl libraries for DNS Lim plugin.
 
 %package -n perl-Lim-Plugin-DNS-Client
 Summary: Client perl libraries for DNS Lim plugin
 Group: Development/Libraries
-Version: 0.11
+Version: 0.12
 %description -n perl-Lim-Plugin-DNS-Client
 Client perl libraries for communicating with the DNS Lim plugin.
 
 %package -n perl-Lim-Plugin-DNS-CLI
 Summary: CLI perl libraries for DNS Lim plugin
 Group: Development/Libraries
-Version: 0.11
+Version: 0.12
 %description -n perl-Lim-Plugin-DNS-CLI
 CLI perl libraries for managing a local or remote DNS installation
 via DNS Lim plugin.
@@ -54,7 +54,7 @@ via DNS Lim plugin.
 Requires: lim-management-console-common >= 0.16
 Summary: DNS Manager Lim plugin Management Console files
 Group: Development/Libraries
-Version: 0.11
+Version: 0.12
 %description -n lim-management-console-dns
 DNS Manager Lim plugin Management Console files.
 
@@ -156,6 +156,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Aug 08 2013 Jerry Lundström < lundstrom.jerry at gmail.com > - 0.12-1
+- Release 0.12
 * Wed Aug 07 2013 Jerry Lundström < lundstrom.jerry at gmail.com > - 0.11-1
 - Release 0.11
 * Fri Aug 02 2013 Jerry Lundström < lundstrom.jerry at gmail.com > - 0.10-1

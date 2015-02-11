@@ -3,9 +3,8 @@ Section: perl
 Priority: optional
 Build-Depends: debhelper (>= 7)
 Build-Depends-Indep: libcommon-sense-perl (>= 3), perl,
- perl (>= 5.10.0) | libdigest-sha-perl (>= 5),
- liblim-server-perl (>= 0.16-1~unstable+1),
- liblim-cli-perl (>= 0.16-1~unstable+1)
+ perl (>= 5.10.0) | libdigest-sha-perl (>= 5), liblim-server-perl (>= 0.20),
+ liblim-cli-perl (>= 0.20)
 Maintainer: Jerry Lundström <lundstrom.jerry@gmail.com>
 Standards-Version: 3.9.1
 Homepage: http://github.com/jelu/lim-plugin-dns/wiki
@@ -13,7 +12,7 @@ Homepage: http://github.com/jelu/lim-plugin-dns/wiki
 Package: liblim-plugin-dns-common-perl
 Architecture: all
 Depends: ${misc:Depends}, ${perl:Depends},
- liblim-common-perl (>= 0.16-1~unstable+1), libcommon-sense-perl (>= 3), perl,
+ liblim-common-perl (>= 0.20), libcommon-sense-perl (>= 3), perl,
  perl (>= 5.10.0) | libdigest-sha-perl (>= 5)
 Description: Common perl libraries for DNS Manager Lim plugin
  Common perl libraries for DNS Manager Lim plugin.
@@ -21,29 +20,27 @@ Description: Common perl libraries for DNS Manager Lim plugin
 Package: liblim-plugin-dns-server-perl
 Architecture: all
 Depends: ${misc:Depends}, ${perl:Depends},
- liblim-plugin-dns-common-perl (= 0.12-1~unstable+1),
- liblim-server-perl (>= 0.16-1~unstable+1)
+ liblim-plugin-dns-common-perl (>= 0.12), liblim-server-perl (>= 0.20)
 Description: Server perl libraries for DNS Manager Lim plugin
  Server perl libraries for DNS Manager Lim plugin.
 
 Package: liblim-plugin-dns-client-perl
 Architecture: all
 Depends: ${misc:Depends}, ${perl:Depends},
- liblim-plugin-dns-common-perl (= 0.12-1~unstable+1)
+ liblim-plugin-dns-common-perl (>= 0.12)
 Description: Client perl libraries for DNS Manager Lim plugin
  Client perl libraries for communicating with the DNS Manager Lim plugin.
 
 Package: liblim-plugin-dns-cli-perl
 Architecture: all
 Depends: ${misc:Depends}, ${perl:Depends},
- liblim-cli-perl (>= 0.16-1~unstable+1),
- liblim-plugin-dns-client-perl (= 0.12-1~unstable+1)
+ liblim-cli-perl (>= 0.20), liblim-plugin-dns-client-perl (>= 0.12)
 Description: CLI perl libraries for DNS Manager Lim plugin
  CLI perl libraries for managing generic DNS related information via DNS Manager
  Lim plugin.
 
 Package: lim-management-console-dns
 Architecture: all
-Depends: ${misc:Depends}, lim-management-console-common (>= 0.16-1~unstable+1)
+Depends: ${misc:Depends}, lim-management-console-common (>= 0.20)
 Description: DNS Manager Lim plugin Management Console files
  DNS Manager Lim plugin Management Console files.

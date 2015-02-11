@@ -241,7 +241,7 @@
 									.text('Creating zone file '+file+', please wait ...')
 									));
 	
-							window.lim.putJSON('/dns/zone', {
+							window.lim.postJSON('/dns/zone', {
 								zone: {
 									file: file
 								}
@@ -358,7 +358,7 @@
 		    			    						.text('Saving zone file '+file+' ...')
 		    		    						));
 		    			    				
-		    			    				window.lim.postJSON('/dns/zone', {
+		    			    				window.lim.putJSON('/dns/zone', {
 		    			    					zone: {
 		    			    						file: file,
 		    			    						content: content
@@ -553,7 +553,7 @@
 									.text('Creating zone option '+name+' in zone file '+file+', please wait ...')
 									));
 		
-							window.lim.putJSON('/dns/zone_option', {
+							window.lim.postJSON('/dns/zone_option', {
 								zone: {
 									file: file,
 									option: {
@@ -665,7 +665,7 @@
 									.text('Updating zone option '+name+' in zone file '+file+', please wait ...')
 									));
 		
-							window.lim.postJSON('/dns/zone_option', {
+							window.lim.putJSON('/dns/zone_option', {
 								zone: {
 									file: file,
 									option: {
@@ -872,7 +872,7 @@
 								rr.class = _class;
 							}
 							
-							window.lim.putJSON('/dns/zone_rr', {
+							window.lim.postJSON('/dns/zone_rr', {
 								zone: {
 									file: file,
 									rr: rr
@@ -1024,7 +1024,7 @@
 								rr.class = _class;
 							}
 							
-							window.lim.postJSON('/dns/zone_rr', {
+							window.lim.putJSON('/dns/zone_rr', {
 								zone: {
 									file: file,
 									rr: rr
